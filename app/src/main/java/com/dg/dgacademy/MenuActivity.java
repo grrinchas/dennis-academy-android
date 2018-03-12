@@ -17,7 +17,8 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     private void initListeners() {
-        findViewById(R.id.menu_publications).setOnClickListener(v -> startActivity(new Intent(this, PublicationsActivity.class)));
+        findViewById(R.id.menu_publications).setOnClickListener(v -> startActivity(new Intent(this, AllPublicationsActivity.class)));
+        findViewById(R.id.menu_drafts).setOnClickListener(v -> startActivity(new Intent(this, AllDraftsActivity.class)));
     }
 
     private void initToolbar() {

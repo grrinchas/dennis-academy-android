@@ -19,9 +19,12 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".LoginActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".PublicationsActivity"
+        <activity android:name=".AllPublicationsActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".MenuActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".AllDraftsActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".PublicationActivity"/>
     </application>
 </manifest>

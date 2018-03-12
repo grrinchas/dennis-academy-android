@@ -1,6 +1,5 @@
 package com.dg.dgacademy;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,14 +21,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PublicationsActivity extends AppCompatActivity {
+import static com.dg.dgacademy.PublicationActivity.OWNER_BIO;
+import static com.dg.dgacademy.PublicationActivity.OWNER_NAME;
+import static com.dg.dgacademy.PublicationActivity.OWNER_PICTURE;
+import static com.dg.dgacademy.PublicationActivity.PUBLICATION_CONTENT;
+import static com.dg.dgacademy.PublicationActivity.PUBLICATION_CREATED_AT;
+import static com.dg.dgacademy.PublicationActivity.PUBLICATION_IMAGE;
+import static com.dg.dgacademy.PublicationActivity.PUBLICATION_LIKES;
+import static com.dg.dgacademy.PublicationActivity.PUBLICATION_TITLE;
+
+public class AllPublicationsActivity extends AppCompatActivity {
 
     private PublicationsAdapter adapter;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_publications);
+        setContentView(R.layout.activity_all_publications);
         initToolbar();
         initRecyclerView();
 
@@ -82,13 +90,12 @@ public class PublicationsActivity extends AppCompatActivity {
     private class PublicationsHolder extends RecyclerView.ViewHolder {
 
         TextView title, ownerName, createdAt, likesCount;
-        ImageView image, ownerPicture, likes;
+        ImageView image, ownerPicture;
 
         PublicationsHolder(View view) {
             super(view);
             image = view.findViewById(R.id.publications_image);
             ownerPicture = view.findViewById(R.id.publications_owner_picture);
-            likes = view.findViewById(R.id.publications_likes);
             title = view.findViewById(R.id.publications_title);
             ownerName = view.findViewById(R.id.publications_owner_name);
             createdAt = view.findViewById(R.id.publications_created_at);
@@ -126,17 +133,28 @@ public class PublicationsActivity extends AppCompatActivity {
         void setOwner(PublicationsHolder holder, PublicationInfo pub) {
             Picasso.get().load(pub.ownerPicture).fit().into(holder.ownerPicture);
             holder.ownerName.setText(pub.ownerName);
+            holder.ownerName.setOnClickListener(v -> Log.d("Publications", "Click on draft owner"));
         }
 
         void setPublication(PublicationsHolder holder, PublicationInfo pub) {
             Picasso.get().load(pub.url).fit().into(holder.image);
-            holder.image.setOnClickListener(v -> Log.d("Publications", "Click on publication image"));
             holder.title.setText(pub.title);
+            holder.image.setOnClickListener(v -> {
+                Intent intent = new Intent(getApplicationContext(), PublicationActivity.class);
+                intent.putExtra(OWNER_PICTURE, pub.ownerPicture);
+                intent.putExtra(OWNER_NAME, pub.ownerName);
+                intent.putExtra(OWNER_BIO, "this is owner bio");
+                intent.putExtra(PUBLICATION_TITLE,pub.title);
+                intent.putExtra(PUBLICATION_CONTENT, "# This is big header \n \n ## Smaller header \n\n * List Item 1 \n * List Item 2\n\n [I am a link](https://www.google.co.uk) \n\n ![Image](" + pub.url+")");
+                intent.putExtra(PUBLICATION_CREATED_AT, pub.createdAt);
+                intent.putExtra(PUBLICATION_LIKES, pub.likes);
+                intent.putExtra(PUBLICATION_IMAGE, pub.url);
+                startActivity(intent);
+            });
         }
 
         void setLikes(PublicationsHolder holder, PublicationInfo pub) {
-            holder.likes.setOnClickListener( v -> Log.d("Publications", "Click like publication"));
-            holder.likesCount.setText(String.valueOf(pub.likes));
+            holder.likesCount.setText("LIKES (" + String.valueOf(pub.likes) + ")");
         }
 
         @Override

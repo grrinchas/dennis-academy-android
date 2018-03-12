@@ -2,73 +2,76 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
     android:background="@color/colorWhite"
     android:elevation="4dp"
+    android:layout_marginBottom="16dp"
     android:orientation="vertical">
 
 
-    <ImageView
-        android:id="@+id/publications_image"
+    <TextView
+        android:id="@+id/drafts_title"
         android:layout_width="match_parent"
-        android:layout_height="200dp" />
+        android:textSize="18sp"
+        android:padding="16dp"
+        android:textColor="@color/colorPrimary"
+        android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/publications_title"
+        android:id="@+id/drafts_preview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="36dp"
+        android:textSize="14sp"
+        android:paddingBottom="16dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:paddingTop="16dp"
+        android:minHeight="200dp"
         android:textColor="@color/colorPrimary"
-        android:textSize="18sp" />
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorWhiteAccent" />
+        android:background="@color/colorWhiteAccent"
+        android:layout_height="1dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        android:layout_height="56dp">
 
 
         <ImageView
-            android:id="@+id/publications_owner_picture"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:id="@+id/drafts_owner_picture"
             android:layout_marginRight="8dp"
-            android:src="@drawable/ic_person_black_36dp" />
+            android:src="@drawable/ic_person_black_36dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
+            android:orientation="vertical"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/publications_owner_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/drafts_owner_name"
                 android:textColor="@color/colorAccentSecond"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
             <TextView
-                android:id="@+id/publications_created_at"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/drafts_created_at"
                 android:textColor="@color/colorWhiteAccentDark"
-                android:textSize="10sp" />
+                android:textSize="10sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
         <TextView
-            android:id="@+id/publications_likes_count"
+            android:id="@+id/drafts_likes_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

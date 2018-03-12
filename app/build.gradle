@@ -32,4 +32,9 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:recyclerview-v7:26.1.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'ru.noties:markwon:1.0.3'
+    implementation 'ru.noties:markwon-image-loader:1.0.3'
+    implementation 'ru.noties:markwon-view:1.0.3'
+
+
 }
