@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorWhite"
+    android:elevation="4dp"
+    android:orientation="vertical">
+
+
+    <ImageView
+        android:id="@+id/publications_image"
+        android:layout_width="match_parent"
+        android:background="@color/colorAccentSecond"
+        android:layout_height="200dp" />
+
+    <TextView
+        android:id="@+id/publications_title"
+        android:layout_width="match_parent"
+        android:textSize="18sp"
+        android:paddingRight="16dp"
+        android:paddingLeft="16dp"
+        android:paddingTop="16dp"
+        android:textColor="@color/colorPrimary"
+        android:text="Lorem Ipsum 2"
+        android:paddingBottom="36dp"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:background="@color/colorWhiteAccent"
+        android:layout_height="1dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        android:layout_height="56dp">
+
+
+        <ImageView
+            android:id="@+id/publications_owner_picture"
+            android:layout_marginRight="8dp"
+            android:src="@drawable/ic_person_black_36dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/publications_owner_name"
+                android:textColor="@color/colorAccentSecond"
+                android:textSize="16sp"
+                android:text="Admin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/publications_created_at"
+                android:textColor="@color/colorWhiteAccentDark"
+                android:textSize="10sp"
+                android:text="Jan 23, 2018"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="0"
+            android:layout_gravity="center_vertical"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/publications_likes_count"
+                android:layout_width="wrap_content"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp"
+                android:layout_gravity="center_vertical"
+                android:text="43"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:id="@+id/publications_likes"
+                android:src="@drawable/ic_favorite_black_36dp"
+                android:tint="@color/colorPrimaryDark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

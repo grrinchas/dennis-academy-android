@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">DgAcademy</string>
+
+    <!-- Login and registration -->
+    <string name="username">Username</string>
+    <string name="email">Email</string>
+    <string name="default_email">admin@mail.com</string>
+    <string name="password">Password</string>
+    <string name="default_password">admin1</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="do_not_have_an_account">Do not have an account?</string>
+
+    <!-- Errors -->
+    <string name="network_error">Network Error</string>
+
+    <!-- Menu -->
+    <string name="menu">Menu</string>
+    <string name="publications">Publications</string>
+    <string name="drafts">Drafts</string>
+    <string name="profile">Profile</string>
+    <string name="dashboard">Dashboard</string>
+</resources>
