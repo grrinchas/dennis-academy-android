@@ -1,4 +1,4 @@
-package com.dg.dgacademy;
+package com.dg.dgacademy.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,7 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
-import com.dg.dgacademy.Model.Publication;
+import com.dg.dgacademy.R;
+import com.dg.dgacademy.model.Draft;
+import com.dg.dgacademy.model.Publication;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -34,8 +36,8 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
         ButterKnife.bind(this);
-        DgApplication.requestDrafts();
-        DgApplication.requestPublications();
+        DgApplication.requestPublicDrafts();
+        DgApplication.requestPublicPublications();
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -60,7 +62,7 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onDraftsRequest(List<DgApplication.DraftInfo> drafts) {
+    public void onDraftsRequest(List<Draft> drafts) {
         totalDrafts.setText(String.valueOf(drafts.size()));
     }
 

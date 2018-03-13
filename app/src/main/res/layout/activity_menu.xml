@@ -24,12 +24,25 @@
 
     </android.support.v7.widget.Toolbar>
 
+    <TextView
+        android:text="@string/public_menu"
+        android:textColor="@color/colorWhiteAccentDark"
+        android:background="@color/colorBlackAccent"
+        android:paddingLeft="16dp"
+        android:paddingVertical="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </TextView>
+
     <LinearLayout
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+
 
         <LinearLayout
             android:id="@+id/menu_publications"
@@ -102,6 +115,100 @@
 
         </LinearLayout>
 
+
+    </LinearLayout>
+
+
+    <TextView
+        android:text="@string/private_menu"
+        android:textColor="@color/colorWhiteAccentDark"
+        android:background="@color/colorBlackAccent"
+        android:paddingLeft="16dp"
+        android:paddingVertical="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </TextView>
+
+
+    <LinearLayout
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <LinearLayout
+            android:id="@+id/menu_private_publications"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="56dp">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:src="@drawable/ic_cloud_queue_black_36dp"
+                android:tint="@color/colorAccentSecond"
+                android:layout_height="36dp" />
+
+            <TextView
+                android:layout_marginLeft="20dp"
+                android:layout_width="wrap_content"
+                android:textSize="18dp"
+                android:text="@string/publications"
+                android:textColor="@color/colorWhite"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_weight="0"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_keyboard_arrow_right_black_36dp"
+                android:tint="@color/colorWhiteAccentDark"
+                android:layout_height="36dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimaryAccent"
+            android:layout_height="1dp">
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menu_private_drafts"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="56dp">
+
+            <ImageView
+                android:src="@drawable/ic_border_all_black_36dp"
+                android:tint="@color/colorAccentSecond"
+                android:layout_width="36dp"
+                android:layout_height="36dp" />
+
+            <TextView
+                android:layout_marginLeft="20dp"
+                android:layout_width="wrap_content"
+                android:textSize="18dp"
+                android:text="@string/drafts"
+                android:textColor="@color/colorWhite"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_weight="0"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_keyboard_arrow_right_black_36dp"
+                android:tint="@color/colorWhiteAccentDark"
+                android:layout_height="36dp" />
+
+        </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:background="@color/colorPrimaryAccent"
@@ -189,4 +296,5 @@
 
     </LinearLayout>
 
-</LinearLayout>
+
+    </LinearLayout>

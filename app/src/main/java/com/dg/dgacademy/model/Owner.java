@@ -1,4 +1,4 @@
-package com.dg.dgacademy.Model;
+package com.dg.dgacademy.model;
 
 
 import org.parceler.Parcel;

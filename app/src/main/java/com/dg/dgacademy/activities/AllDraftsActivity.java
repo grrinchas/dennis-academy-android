@@ -1,6 +1,5 @@
-package com.dg.dgacademy;
+package com.dg.dgacademy.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,11 +15,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.dg.dgacademy.R;
+import com.dg.dgacademy.model.Draft;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.parceler.Parcels;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +46,7 @@ public class AllDraftsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestDrafts();
+        DgApplication.requestPublicDrafts();
         initRecyclerView();
     }
 
@@ -67,7 +69,7 @@ public class AllDraftsActivity extends AppCompatActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onDraftsRequest(List<DgApplication.DraftInfo> drafts) {
+    public void onDraftsRequest(List<Draft> drafts) {
         adapter.drafts = drafts;
         adapter.notifyDataSetChanged();
     }
@@ -99,9 +101,9 @@ public class AllDraftsActivity extends AppCompatActivity {
 
     private class DraftsAdapter extends RecyclerView.Adapter<DraftsHolder> {
 
-        List<DgApplication.DraftInfo> drafts;
+        List<Draft> drafts;
 
-        DraftsAdapter(List<DgApplication.DraftInfo> drafts) {
+        DraftsAdapter(List<Draft> drafts) {
             this.drafts = drafts;
         }
 
@@ -113,40 +115,36 @@ public class AllDraftsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(DraftsHolder holder, int position) {
-            DgApplication.DraftInfo draft = drafts.get(position);
+            Draft draft = drafts.get(position);
             setCreatedAt(holder, draft);
             setOwner(holder, draft);
             setDraft(holder, draft);
             setLikes(holder, draft);
         }
 
-        void setCreatedAt(DraftsHolder holder, DgApplication.DraftInfo pub) {
+        void setCreatedAt(DraftsHolder holder, Draft pub) {
             holder.createdAt.setText(pub.createdAt);
         }
 
-        void setOwner(DraftsHolder holder, DgApplication.DraftInfo pub) {
-            Picasso.get().load(pub.ownerPicture).fit().into(holder.ownerPicture);
-            holder.ownerName.setText(pub.ownerName);
+        void setOwner(DraftsHolder holder, Draft pub) {
+            Picasso.get().load(pub.owner.picture).fit().into(holder.ownerPicture);
+            holder.ownerName.setText(pub.owner.name);
             holder.ownerName.setOnClickListener(v -> Log.d("Drafts", "Click on draft owner"));
         }
 
-        void setDraft(DraftsHolder holder, DgApplication.DraftInfo pub) {
+        void setDraft(DraftsHolder holder, Draft pub) {
             holder.title.setText(pub.title);
-            holder.preview.setText(pub.preview);
+            holder.preview.setText(pub.content);
             holder.preview.setOnClickListener(v -> {
                 Intent intent = new Intent(getApplicationContext(), DraftActivity.class);
-                intent.putExtra(C.OWNER_PICTURE, pub.ownerPicture);
-                intent.putExtra(C.OWNER_NAME, pub.ownerName);
-                intent.putExtra(C.OWNER_BIO, "this is owner bio");
-                intent.putExtra(C.TITLE,pub.title);
-                intent.putExtra(C.CONTENT, "# This is big header \n \n ## Smaller header \n\n * List Item 1 \n * List Item 2\n\n [I am a link](https://www.google.co.uk)");
-                intent.putExtra(C.CREATED_AT, pub.createdAt);
-                intent.putExtra(C.LIKES, pub.likes);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("BUNDLE", Parcels.wrap(pub));
+                intent.putExtras(bundle);
                 startActivity(intent);
             });
         }
 
-        void setLikes(DraftsHolder holder, DgApplication.DraftInfo pub) {
+        void setLikes(DraftsHolder holder, Draft pub) {
             holder.likesCount.setText("LIKES (" + String.valueOf(pub.likes) + ")");
         }
 
