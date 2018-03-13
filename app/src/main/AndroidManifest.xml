@@ -7,6 +7,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:name=".DgApplication"
         android:theme="@style/AppTheme" >
         <activity android:name=".MainActivity"
             android:screenOrientation="portrait" >
@@ -26,5 +27,7 @@
         <activity android:name=".AllDraftsActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".PublicationActivity"/>
+        <activity android:name=".DraftActivity"/>
+        <activity android:name=".DashboardActivity" />
     </application>
 </manifest>

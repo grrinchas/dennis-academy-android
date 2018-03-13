@@ -6,24 +6,35 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class MenuActivity extends AppCompatActivity {
+
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
-        initToolbar();
-        initListeners();
-    }
+        ButterKnife.bind(this);
 
-    private void initListeners() {
-        findViewById(R.id.menu_publications).setOnClickListener(v -> startActivity(new Intent(this, AllPublicationsActivity.class)));
-        findViewById(R.id.menu_drafts).setOnClickListener(v -> startActivity(new Intent(this, AllDraftsActivity.class)));
-    }
-
-    private void initToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
+    @OnClick(R.id.menu_publications)
+    public void onClickMenuPublications() {
+        startActivity(new Intent(this, AllPublicationsActivity.class));
+    }
+
+    @OnClick(R.id.menu_drafts)
+    public void onClickMenuDrafts() {
+        startActivity(new Intent(this, AllDraftsActivity.class));
+    }
+    @OnClick(R.id.menu_dashboard)
+    public void onClickMenuDashboard() {
+        startActivity(new Intent(this, DashboardActivity.class));
     }
 }

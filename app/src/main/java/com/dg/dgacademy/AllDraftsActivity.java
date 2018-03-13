@@ -1,5 +1,6 @@
 package com.dg.dgacademy;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,32 +18,60 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.Collections;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 public class AllDraftsActivity extends AppCompatActivity {
 
     private DraftsAdapter adapter;
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_drafts);
-        initToolbar();
-        initRecyclerView();
+        ButterKnife.bind(this);
 
-        adapter.drafts = prepareData();
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        DgApplication.requestDrafts();
+        initRecyclerView();
+    }
+
+    @OnClick(R.id.toolbar_menu)
+    public void onClickToolbarMenu() {
+        startActivity(new Intent(this, MenuActivity.class));
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onDraftsRequest(List<DgApplication.DraftInfo> drafts) {
+        adapter.drafts = drafts;
         adapter.notifyDataSetChanged();
     }
 
-    private void initToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        findViewById(R.id.toolbar_menu).setOnClickListener(v -> startActivity(new Intent(this, MenuActivity.class)));
-    }
     private void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.drafts_recycler_view);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -51,53 +80,28 @@ public class AllDraftsActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private List<DraftInfo> prepareData() {
-        List<DraftInfo> drafts = new ArrayList<>();
 
-        DraftInfo info1 = new DraftInfo();
-        info1.title = "Lorem Ipsum 2";
-        info1.createdAt = "Jan 23, 2019";
-        info1.ownerName = "admin1";
-        info1.preview = "This is some previou aosid a pbapos pas apsdfo ihapsuidhfaspdfaisdh apsdifh asdf";
-        info1.ownerPicture = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
-        info1.likes = 20;
+    class DraftsHolder extends RecyclerView.ViewHolder {
 
-        DraftInfo info2 = new DraftInfo();
-        info2.title = "Lorem Ipsum 2";
-        info2.createdAt = "Jan 23, 2019";
-        info2.ownerName = "admin1";
-        info2.preview = "This is some previou aosid a pbapos pas apsdfo ihapsuidhfaspdfaisdh apsdifh asdf";
-        info2.ownerPicture = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
-        info2.likes = 20;
+        @BindView(R.id.drafts_title) TextView title;
+        @BindView(R.id.drafts_owner_name) TextView ownerName;
+        @BindView(R.id.drafts_created_at) TextView createdAt;
+        @BindView(R.id.drafts_likes_count) TextView likesCount;
+        @BindView(R.id.drafts_preview) TextView preview;
+        @BindView(R.id.drafts_owner_picture) ImageView ownerPicture;
 
-
-        drafts.add(info1);
-        drafts.add(info2);
-
-        return drafts;
-    }
-
-    private class DraftsHolder extends RecyclerView.ViewHolder {
-
-        TextView title, preview, ownerName, createdAt, likesCount;
-        ImageView ownerPicture;
 
         DraftsHolder(View view) {
             super(view);
-            ownerPicture = view.findViewById(R.id.drafts_owner_picture);
-            title = view.findViewById(R.id.drafts_title);
-            ownerName = view.findViewById(R.id.drafts_owner_name);
-            preview = view.findViewById(R.id.drafts_preview);
-            createdAt = view.findViewById(R.id.drafts_created_at);
-            likesCount = view.findViewById(R.id.drafts_likes_count);
+            ButterKnife.bind(this, view);
         }
     }
 
     private class DraftsAdapter extends RecyclerView.Adapter<DraftsHolder> {
 
-        List<DraftInfo> drafts;
+        List<DgApplication.DraftInfo> drafts;
 
-        DraftsAdapter(List<DraftInfo> drafts) {
+        DraftsAdapter(List<DgApplication.DraftInfo> drafts) {
             this.drafts = drafts;
         }
 
@@ -109,31 +113,40 @@ public class AllDraftsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(DraftsHolder holder, int position) {
-            DraftInfo draft = drafts.get(position);
+            DgApplication.DraftInfo draft = drafts.get(position);
             setCreatedAt(holder, draft);
             setOwner(holder, draft);
             setDraft(holder, draft);
             setLikes(holder, draft);
         }
 
-        void setCreatedAt(DraftsHolder holder, DraftInfo pub) {
+        void setCreatedAt(DraftsHolder holder, DgApplication.DraftInfo pub) {
             holder.createdAt.setText(pub.createdAt);
         }
 
-        void setOwner(DraftsHolder holder, DraftInfo pub) {
+        void setOwner(DraftsHolder holder, DgApplication.DraftInfo pub) {
             Picasso.get().load(pub.ownerPicture).fit().into(holder.ownerPicture);
             holder.ownerName.setText(pub.ownerName);
             holder.ownerName.setOnClickListener(v -> Log.d("Drafts", "Click on draft owner"));
         }
 
-        void setDraft(DraftsHolder holder, DraftInfo pub) {
+        void setDraft(DraftsHolder holder, DgApplication.DraftInfo pub) {
             holder.title.setText(pub.title);
-            holder.title.setOnClickListener(v -> Log.d("Drafts", "Click on draft title"));
             holder.preview.setText(pub.preview);
-            holder.preview.setOnClickListener(v -> Log.d("Drafts", "Click on draft preview"));
+            holder.preview.setOnClickListener(v -> {
+                Intent intent = new Intent(getApplicationContext(), DraftActivity.class);
+                intent.putExtra(C.OWNER_PICTURE, pub.ownerPicture);
+                intent.putExtra(C.OWNER_NAME, pub.ownerName);
+                intent.putExtra(C.OWNER_BIO, "this is owner bio");
+                intent.putExtra(C.TITLE,pub.title);
+                intent.putExtra(C.CONTENT, "# This is big header \n \n ## Smaller header \n\n * List Item 1 \n * List Item 2\n\n [I am a link](https://www.google.co.uk)");
+                intent.putExtra(C.CREATED_AT, pub.createdAt);
+                intent.putExtra(C.LIKES, pub.likes);
+                startActivity(intent);
+            });
         }
 
-        void setLikes(DraftsHolder holder, DraftInfo pub) {
+        void setLikes(DraftsHolder holder, DgApplication.DraftInfo pub) {
             holder.likesCount.setText("LIKES (" + String.valueOf(pub.likes) + ")");
         }
 
@@ -143,14 +156,5 @@ public class AllDraftsActivity extends AppCompatActivity {
         }
     }
 
-    private class DraftInfo {
 
-        String title;
-        String preview;
-        String createdAt;
-        String ownerName;
-        String ownerPicture;
-        int likes;
-
-    }
 }

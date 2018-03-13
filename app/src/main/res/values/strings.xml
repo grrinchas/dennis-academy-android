@@ -19,8 +19,18 @@
     <!-- Menu -->
     <string name="menu">Menu</string>
     <string name="publications">Publications</string>
-    <string name="publication">Publication</string>
-    <string name="drafts">Drafts</string>
-    <string name="profile">Profile</string>
     <string name="dashboard">Dashboard</string>
+    <string name="drafts">Drafts</string>
+
+    <!-- Toolbar -->
+    <string name="publication">Publication</string>
+    <string name="draft">Draft</string>
+    <string name="profile">Profile</string>
+
+    <!-- Dashboard -->
+    <string name="total_likes">Total Likes</string>
+    <string name="total_your_likes">Total Your Likes</string>
+    <string name="total_publications">Total Publications</string>
+    <string name="total_drafts">Total Drafts</string>
+
 </resources>

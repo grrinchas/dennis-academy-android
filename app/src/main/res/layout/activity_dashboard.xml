@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar"
+        app:contentInsetStart="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorAccent"
+        android:elevation="4dp"
+        android:gravity="center_vertical">
+
+    <ImageView
+        android:id="@+id/toolbar_menu"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_menu_black_36dp"
+        android:tint="@color/colorWhite" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="28dp"
+        android:text="@string/dashboard"
+        android:textColor="@color/colorWhite"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <GridLayout
+        android:padding="16dp"
+        android:columnCount="2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical"
+            android:layout_gravity="fill"
+            android:gravity="center"
+            android:layout_rowWeight="1"
+            android:background="@color/colorBlackAccent"
+            android:layout_columnWeight="1">
+
+            <ImageView
+                android:src="@drawable/ic_wb_cloudy_black_36dp"
+                android:tint="@color/colorAccentSecond"
+                android:layout_width="72dp"
+                android:layout_height="72dp" />
+
+            <TextView
+                android:id="@+id/total_publications"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="2dp"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="@string/total_publications"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginLeft="8dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@color/colorBlackAccent"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1">
+
+            <ImageView
+                android:src="@drawable/ic_apps_black_36dp"
+                android:tint="@color/colorAccentSecond"
+                android:layout_width="72dp"
+                android:layout_height="72dp" />
+
+            <TextView
+                android:id="@+id/total_drafts"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="2dp"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="@string/total_drafts"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="8dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@color/colorBlackAccent"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1">
+
+
+            <ImageView
+                android:src="@drawable/ic_favorite_black_36dp"
+                android:tint="@color/colorAccentSecond"
+                android:layout_width="72dp"
+                android:layout_height="72dp" />
+
+            <TextView
+                android:id="@+id/total_likes"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="2dp"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="@string/total_likes"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@color/colorBlackAccent"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1">
+
+            <ImageView
+                android:src="@drawable/ic_favorite_border_black_36dp"
+                android:tint="@color/colorAccentSecond"
+                android:layout_width="72dp"
+                android:layout_height="72dp" />
+
+            <TextView
+                android:id="@+id/total_your_likes"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="2dp"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorWhite"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text="@string/total_your_likes" />
+
+        </LinearLayout>
+
+    </GridLayout>
+
+
+</LinearLayout>

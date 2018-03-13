@@ -11,9 +11,9 @@ public class MainActivity extends Activity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_draft);
 
-        startActivity(new Intent(this, MenuActivity.class));
+        startActivity(new Intent(this, DashboardActivity.class));
 
     }
 }

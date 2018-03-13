@@ -15,42 +15,45 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.dg.dgacademy.Model.Publication;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.parceler.Parcels;
+
 import java.util.Collections;
 import java.util.List;
 
-import static com.dg.dgacademy.PublicationActivity.OWNER_BIO;
-import static com.dg.dgacademy.PublicationActivity.OWNER_NAME;
-import static com.dg.dgacademy.PublicationActivity.OWNER_PICTURE;
-import static com.dg.dgacademy.PublicationActivity.PUBLICATION_CONTENT;
-import static com.dg.dgacademy.PublicationActivity.PUBLICATION_CREATED_AT;
-import static com.dg.dgacademy.PublicationActivity.PUBLICATION_IMAGE;
-import static com.dg.dgacademy.PublicationActivity.PUBLICATION_LIKES;
-import static com.dg.dgacademy.PublicationActivity.PUBLICATION_TITLE;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 
 public class AllPublicationsActivity extends AppCompatActivity {
 
     private PublicationsAdapter adapter;
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_publications);
-        initToolbar();
-        initRecyclerView();
+        ButterKnife.bind(this);
 
-        adapter.publications = prepareData();
-        adapter.notifyDataSetChanged();
-    }
-
-    private void initToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        findViewById(R.id.toolbar_menu).setOnClickListener(v -> startActivity(new Intent(this, MenuActivity.class)));
+        DgApplication.requestPublications();
+
+        initRecyclerView();
     }
+
+    @OnClick(R.id.toolbar_menu)
+    public void onClickToolbarMenu() {
+        startActivity(new Intent(this, MenuActivity.class));
+    }
+
     private void initRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.publications_recycler_view);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -59,55 +62,45 @@ public class AllPublicationsActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private List<PublicationInfo> prepareData() {
-        List<PublicationInfo> publications = new ArrayList<>();
 
-        PublicationInfo info1 = new PublicationInfo();
-        info1.title = "Lorem Ipsum 2";
-        info1.createdAt = "Jan 23, 2019";
-        info1.ownerName = "admin1";
-        info1.url = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
-        info1.ownerPicture = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
-        info1.likes = 20;
-
-        PublicationInfo info2 = new PublicationInfo();
-        info2.title = "Lorem Ipsum 2";
-        info2.createdAt = "Jan 23, 2019";
-        info2.ownerName = "admin1";
-        info2.url = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
-        info2.ownerPicture = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
-        info2.likes = 20;
-
-
-        publications.add(info1);
-        publications.add(info2);
-
-        return publications;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
 
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onPublicationsRequest(List<Publication> publications) {
+        adapter.publications = publications;
+        adapter.notifyDataSetChanged();
+    }
 
-    private class PublicationsHolder extends RecyclerView.ViewHolder {
+   class PublicationsHolder extends RecyclerView.ViewHolder {
 
-        TextView title, ownerName, createdAt, likesCount;
-        ImageView image, ownerPicture;
+        @BindView(R.id.publications_title) TextView title;
+        @BindView(R.id.publications_owner_name) TextView ownerName;
+        @BindView(R.id.publications_created_at) TextView createdAt;
+        @BindView(R.id.publications_likes_count) TextView likesCount;
+        @BindView(R.id.publications_image) ImageView image;
+        @BindView(R.id.publications_owner_picture) ImageView ownerPicture;
 
         PublicationsHolder(View view) {
             super(view);
-            image = view.findViewById(R.id.publications_image);
-            ownerPicture = view.findViewById(R.id.publications_owner_picture);
-            title = view.findViewById(R.id.publications_title);
-            ownerName = view.findViewById(R.id.publications_owner_name);
-            createdAt = view.findViewById(R.id.publications_created_at);
-            likesCount = view.findViewById(R.id.publications_likes_count);
+            ButterKnife.bind(this, view);
         }
     }
 
     private class PublicationsAdapter extends RecyclerView.Adapter<PublicationsHolder> {
 
-        List<PublicationInfo> publications;
+        List<Publication> publications;
 
-        PublicationsAdapter(List<PublicationInfo> publications) {
+        PublicationsAdapter(List<Publication> publications) {
             this.publications = publications;
         }
 
@@ -119,41 +112,38 @@ public class AllPublicationsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(PublicationsHolder holder, int position) {
-            PublicationInfo pub = publications.get(position);
+            Publication pub = publications.get(position);
             setCreatedAt(holder, pub);
             setOwner(holder, pub);
             setPublication(holder, pub);
             setLikes(holder, pub);
         }
 
-        void setCreatedAt(PublicationsHolder holder, PublicationInfo pub) {
+        void setCreatedAt(PublicationsHolder holder, Publication pub) {
             holder.createdAt.setText(pub.createdAt);
         }
 
-        void setOwner(PublicationsHolder holder, PublicationInfo pub) {
-            Picasso.get().load(pub.ownerPicture).fit().into(holder.ownerPicture);
-            holder.ownerName.setText(pub.ownerName);
+        void setOwner(PublicationsHolder holder, Publication pub) {
+            Picasso.get().load(pub.owner.picture).fit().into(holder.ownerPicture);
+            holder.ownerName.setText(pub.owner.name);
             holder.ownerName.setOnClickListener(v -> Log.d("Publications", "Click on draft owner"));
         }
 
-        void setPublication(PublicationsHolder holder, PublicationInfo pub) {
+        void setPublication(PublicationsHolder holder, Publication pub) {
             Picasso.get().load(pub.url).fit().into(holder.image);
             holder.title.setText(pub.title);
+
             holder.image.setOnClickListener(v -> {
                 Intent intent = new Intent(getApplicationContext(), PublicationActivity.class);
-                intent.putExtra(OWNER_PICTURE, pub.ownerPicture);
-                intent.putExtra(OWNER_NAME, pub.ownerName);
-                intent.putExtra(OWNER_BIO, "this is owner bio");
-                intent.putExtra(PUBLICATION_TITLE,pub.title);
-                intent.putExtra(PUBLICATION_CONTENT, "# This is big header \n \n ## Smaller header \n\n * List Item 1 \n * List Item 2\n\n [I am a link](https://www.google.co.uk) \n\n ![Image](" + pub.url+")");
-                intent.putExtra(PUBLICATION_CREATED_AT, pub.createdAt);
-                intent.putExtra(PUBLICATION_LIKES, pub.likes);
-                intent.putExtra(PUBLICATION_IMAGE, pub.url);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(C.BUNDLE, Parcels.wrap(pub));
+                intent.putExtras(bundle);
+
                 startActivity(intent);
             });
         }
 
-        void setLikes(PublicationsHolder holder, PublicationInfo pub) {
+        void setLikes(PublicationsHolder holder, Publication pub) {
             holder.likesCount.setText("LIKES (" + String.valueOf(pub.likes) + ")");
         }
 
@@ -163,15 +153,6 @@ public class AllPublicationsActivity extends AppCompatActivity {
         }
     }
 
-    private class PublicationInfo {
 
-        String title;
-        String createdAt;
-        String ownerName;
-        String url;
-        String ownerPicture;
-        int likes;
-
-    }
 
 }
