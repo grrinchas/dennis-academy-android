@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorAccent"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        app:contentInsetStart="8dp">
+
+        <ImageView
+            android:id="@+id/toolbar_menu"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_menu_black_36dp"
+            android:tint="@color/colorWhite" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="28dp"
+            android:text="@string/profile"
+            android:textColor="@color/colorWhite"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Picture"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/picture"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_weight="0"
+                android:src="@drawable/ic_person_black_36dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimaryAccent"
+            android:layout_height="1dp">
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/email"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/email"
+                android:textSize="18sp"
+                android:textColor="@color/colorWhiteAccentDark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimaryAccent"
+            android:layout_height="1dp">
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/username"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/username"
+                android:textSize="18sp"
+                android:textColor="@color/colorWhiteAccentDark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimaryAccent"
+            android:layout_height="1dp">
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/bio"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/about"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_weight="0"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_keyboard_arrow_right_black_36dp"
+                android:tint="@color/colorWhiteAccentDark"
+                android:layout_height="36dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimaryAccent"
+            android:layout_height="1dp">
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</LinearLayout>

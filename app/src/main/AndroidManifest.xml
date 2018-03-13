@@ -35,5 +35,8 @@
         <activity android:name=".activities.AllPrivatePublicationsActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".activities.PrivatePublicationActivity" />
+        <activity android:name=".activities.ProfileActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activities.AboutActivity" />
     </application>
 </manifest>

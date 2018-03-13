@@ -85,6 +85,7 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
     class DraftsHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.drafts_title) TextView title;
+        @BindView(R.id.draft) View draft;
 
         DraftsHolder(View view) {
             super(view);
@@ -116,7 +117,7 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
 
         void setDraft(DraftsHolder holder, Draft pub) {
             holder.title.setText(pub.title);
-            holder.title.setOnClickListener(v -> {
+            holder.draft.setOnClickListener(v -> {
                 /*
                 Intent intent = new Intent(getApplicationContext(), DraftActivity.class);
                 Bundle bundle = new Bundle();

@@ -28,10 +28,6 @@
     <string name="publication">Publication</string>
     <string name="draft">Draft</string>
     <string name="profile">Profile</string>
-    <string name="private_drafts">Private Drafts</string>
-    <string name="private_draft">Private Draft</string>
-    <string name="private_publications">Private Publications</string>
-    <string name="private_publication">Private Publication</string>
 
     <!-- Dashboard -->
     <string name="total_likes">Total Likes</string>
@@ -39,4 +35,7 @@
     <string name="total_publications">Total Publications</string>
     <string name="total_drafts">Total Drafts</string>
 
+    <!-- Bio -->
+    <string name="picture">Picture</string>
+    <string name="about">About</string>
 </resources>

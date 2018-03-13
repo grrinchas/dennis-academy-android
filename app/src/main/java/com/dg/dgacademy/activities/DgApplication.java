@@ -5,6 +5,7 @@ import android.app.Application;
 
 import com.dg.dgacademy.model.Draft;
 import com.dg.dgacademy.model.Owner;
+import com.dg.dgacademy.model.Profile;
 import com.dg.dgacademy.model.Publication;
 
 import org.greenrobot.eventbus.EventBus;
@@ -15,6 +16,22 @@ import java.util.List;
 public class DgApplication extends Application {
 
 
+    public static void requestProfile() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Profile profile = new Profile();
+
+                profile.username = "admin1";
+                profile.picture = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
+                profile.bio = "This is some bio";
+                profile.email = "dg4675dg@gmail.com";
+
+                EventBus.getDefault().postSticky(profile);
+            }
+        });
+        thread.start();
+    }
 
     public static void requestPublicDrafts() {
         Thread thread = new Thread(new Runnable() {

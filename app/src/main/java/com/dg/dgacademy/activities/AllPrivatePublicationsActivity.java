@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dg.dgacademy.R;
-import com.dg.dgacademy.model.Draft;
 import com.dg.dgacademy.model.Publication;
 import com.squareup.picasso.Picasso;
 
@@ -27,7 +26,6 @@ import org.parceler.Parcels;
 import java.util.Collections;
 import java.util.List;
 
-import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -47,7 +45,7 @@ public class AllPrivatePublicationsActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        toolbarTitle.setText(R.string.private_publications);
+        toolbarTitle.setText(R.string.publications);
 
         DgApplication.requestPrivatePublications();
         initRecyclerView();
@@ -89,6 +87,7 @@ public class AllPrivatePublicationsActivity extends AppCompatActivity {
 
         @BindView(R.id.publications_title) TextView title;
         @BindView(R.id.publications_image) ImageView image;
+        @BindView(R.id.publication) View publication;
 
         PublicationsHolder(View view) {
             super(view);
@@ -121,7 +120,7 @@ public class AllPrivatePublicationsActivity extends AppCompatActivity {
 
         void setPublication(PublicationsHolder holder, Publication pub) {
             holder.title.setText(pub.title);
-            holder.title.setOnClickListener(v -> {
+            holder.publication.setOnClickListener(v -> {
                 Intent intent = new Intent(getApplicationContext(), PrivatePublicationActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("BUNDLE", Parcels.wrap(pub));

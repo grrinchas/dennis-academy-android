@@ -53,4 +53,8 @@ public class MenuActivity extends AppCompatActivity {
         startActivity(new Intent(this, DashboardActivity.class));
     }
 
+    @OnClick(R.id.menu_profile)
+    public void onClickMenuProfile() {
+        startActivity(new Intent(this, ProfileActivity.class));
+    }
 }
