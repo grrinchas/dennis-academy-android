@@ -4,6 +4,7 @@
     <color name="colorPrimaryAccent">#3a3a3a</color>
     <color name="colorPrimaryDark">#9f0000</color>
     <color name="colorAccent">#d84315</color>
+    <color name="colorNotification">#f9a825</color>
     <color name="colorAccentSecond">#00838f</color>
     <color name="colorWhite">#FFF</color>
     <color name="colorWhiteAccent">#DDD</color>

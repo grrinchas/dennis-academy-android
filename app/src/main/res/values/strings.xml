@@ -28,6 +28,7 @@
     <string name="publication">Publication</string>
     <string name="draft">Draft</string>
     <string name="profile">Profile</string>
+    <string name="notifications">Notifications</string>
 
     <!-- Dashboard -->
     <string name="total_likes">Total Likes</string>
@@ -38,4 +39,22 @@
     <!-- Bio -->
     <string name="picture">Picture</string>
     <string name="about">About</string>
+
+    <!-- Notifications -->
+    <string name="your_draft">your draft</string>
+    <string name="your_publication">your publication</string>
+    <string name="draft_deleted">Draft has been deleted</string>
+    <string name="publication_deleted">Publication has been deleted</string>
+
+    <!-- Draft Settings -->
+    <string name="edit">Edit</string>
+    <string name="draft_menu">Draft Menu</string>
+    <string name="other">Other</string>
+    <string name="edit_title">Title</string>
+    <string name="sharing">Sharing</string>
+    <string name="edit_markdown">Markdown</string>
+    <string name="publish">Publish</string>
+    <string name="duplicate">Duplicate</string>
+    <string name="delete">Delete</string>
+    <string name="make_public">Public</string>
 </resources>

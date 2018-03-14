@@ -1,4 +1,4 @@
-package com.dg.dgacademy.activities;
+package com.dg.dgacademy.activities.draft;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,8 +15,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
+import com.dg.dgacademy.activities.MenuActivity;
 import com.dg.dgacademy.model.Draft;
+import com.dg.dgacademy.model.DraftsEvent;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -31,22 +34,22 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AllPrivateDraftsActivity extends AppCompatActivity {
+
+public class AllDraftsActivity extends AppCompatActivity {
 
     private DraftsAdapter adapter;
-
     @BindView(R.id.toolbar) Toolbar toolbar;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_all_private_drafts);
+        setContentView(R.layout.activity_all_drafts);
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestPrivateDrafts();
+        DgApplication.requestPublicDrafts();
         initRecyclerView();
     }
 
@@ -69,8 +72,8 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onDraftsRequest(List<Draft> drafts) {
-        adapter.drafts = drafts;
+    public void onDraftsRequest(DraftsEvent event) {
+        adapter.drafts = event.drafts;
         adapter.notifyDataSetChanged();
     }
 
@@ -82,17 +85,22 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+
     class DraftsHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.drafts_title) TextView title;
-        @BindView(R.id.draft) View draft;
+        @BindView(R.id.drafts_owner_name) TextView ownerName;
+        @BindView(R.id.drafts_created_at) TextView createdAt;
+        @BindView(R.id.drafts_likes_count) TextView likesCount;
+        @BindView(R.id.drafts_preview) TextView preview;
+        @BindView(R.id.drafts_owner_picture) ImageView ownerPicture;
+
 
         DraftsHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
         }
     }
-
 
     private class DraftsAdapter extends RecyclerView.Adapter<DraftsHolder> {
 
@@ -104,28 +112,43 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
 
         @Override
         public DraftsHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_row_draft, parent, false);
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_drafts, parent, false);
             return new DraftsHolder(itemView);
         }
 
         @Override
         public void onBindViewHolder(DraftsHolder holder, int position) {
             Draft draft = drafts.get(position);
+            setCreatedAt(holder, draft);
+            setOwner(holder, draft);
             setDraft(holder, draft);
+            setLikes(holder, draft);
         }
 
+        void setCreatedAt(DraftsHolder holder, Draft pub) {
+            holder.createdAt.setText(pub.createdAt);
+        }
+
+        void setOwner(DraftsHolder holder, Draft pub) {
+            Picasso.get().load(pub.owner.picture).fit().into(holder.ownerPicture);
+            holder.ownerName.setText(pub.owner.name);
+            holder.ownerName.setOnClickListener(v -> Log.d("Drafts", "Click on draft owner"));
+        }
 
         void setDraft(DraftsHolder holder, Draft pub) {
             holder.title.setText(pub.title);
-            holder.draft.setOnClickListener(v -> {
-                /*
+            holder.preview.setText(pub.content);
+            holder.preview.setOnClickListener(v -> {
                 Intent intent = new Intent(getApplicationContext(), DraftActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("BUNDLE", Parcels.wrap(pub));
                 intent.putExtras(bundle);
                 startActivity(intent);
-                */
             });
+        }
+
+        void setLikes(DraftsHolder holder, Draft pub) {
+            holder.likesCount.setText("LIKES (" + String.valueOf(pub.likes) + ")");
         }
 
         @Override
@@ -133,5 +156,6 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
             return drafts.size();
         }
     }
+
 
 }

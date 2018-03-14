@@ -1,4 +1,4 @@
-package com.dg.dgacademy.activities;
+package com.dg.dgacademy.activities.publication;
 
 
 import android.content.Intent;
@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 
 import com.dg.dgacademy.R;
+import com.dg.dgacademy.activities.MenuActivity;
 import com.dg.dgacademy.model.Publication;
 import com.squareup.picasso.Picasso;
 

@@ -5,6 +5,7 @@ import org.parceler.Parcel;
 @Parcel
 public class Draft {
 
+    public String id;
     public String title;
     public String createdAt;
     public Owner owner;

@@ -7,9 +7,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
+import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.model.Draft;
+import com.dg.dgacademy.model.DraftsEvent;
 import com.dg.dgacademy.model.Publication;
+import com.dg.dgacademy.model.PublicationsEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -62,12 +65,12 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onDraftsRequest(List<Draft> drafts) {
-        totalDrafts.setText(String.valueOf(drafts.size()));
+    public void onDraftsRequest(DraftsEvent event) {
+        totalDrafts.setText(String.valueOf(event.drafts.size()));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onPublicationsRequest(List<Publication> publications) {
-        totalPublications.setText(String.valueOf(publications.size()));
+    public void onPublicationsRequest(PublicationsEvent event) {
+        totalPublications.setText(String.valueOf(event.publications.size()));
     }
 }

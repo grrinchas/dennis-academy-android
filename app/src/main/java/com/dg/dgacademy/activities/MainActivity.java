@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.dg.dgacademy.R;
+import com.dg.dgacademy.activities.draft.AllPrivateDraftsActivity;
+import com.dg.dgacademy.activities.draft.DraftSettingsActivity;
 
 public class MainActivity extends Activity {
 
@@ -13,8 +15,8 @@ public class MainActivity extends Activity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_profile);
-        startActivity(new Intent(this, MenuActivity.class));
+        setContentView(R.layout.list_row_notification);
+        startActivity(new Intent(this, AllPrivateDraftsActivity.class));
 
     }
 }

@@ -7,7 +7,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name=".activities.DgApplication"
+        android:name=".DgApplication"
         android:theme="@style/AppTheme" >
         <activity android:name=".activities.MainActivity"
             android:screenOrientation="portrait" >
@@ -20,23 +20,31 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".activities.LoginActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".activities.AllPublicationsActivity"
+        <activity android:name=".activities.publication.AllPublicationsActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".activities.MenuActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".activities.AllDraftsActivity"
+        <activity android:name=".activities.draft.AllDraftsActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".activities.PublicationActivity"/>
-        <activity android:name=".activities.DraftActivity"/>
+        <activity android:name=".activities.publication.PublicationActivity"/>
+        <activity android:name=".activities.draft.DraftActivity"/>
         <activity android:name=".activities.DashboardActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".activities.AllPrivateDraftsActivity"
+        <activity android:name=".activities.draft.AllPrivateDraftsActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".activities.AllPrivatePublicationsActivity"
+        <activity android:name=".activities.publication.AllPrivatePublicationsActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".activities.PrivatePublicationActivity" />
+        <activity android:name=".activities.publication.PrivatePublicationActivity" />
         <activity android:name=".activities.ProfileActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".activities.AboutActivity" />
+        <activity android:name=".activities.NotificationsActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activities.draft.PrivateDraftActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activities.draft.DraftSettingsActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activities.draft.EditDraftTitleActivity"/>
+        <activity android:name=".activities.draft.EditMarkdownActivity"/>
     </application>
 </manifest>

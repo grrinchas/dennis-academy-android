@@ -5,8 +5,19 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.widget.ImageView;
 
+import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
+import com.dg.dgacademy.activities.draft.AllDraftsActivity;
+import com.dg.dgacademy.activities.draft.AllPrivateDraftsActivity;
+import com.dg.dgacademy.activities.publication.AllPrivatePublicationsActivity;
+import com.dg.dgacademy.activities.publication.AllPublicationsActivity;
+import com.dg.dgacademy.model.NotificationsEvent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -16,6 +27,8 @@ public class MenuActivity extends AppCompatActivity {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.notifications)
+    ImageView notificationsIcon;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -23,8 +36,34 @@ public class MenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_menu);
         ButterKnife.bind(this);
 
+        DgApplication.requestNotifications();
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onNotificationsRequest(NotificationsEvent event) {
+        if (event.notifications.isEmpty())
+            notificationsIcon.setImageResource(R.drawable.ic_notifications_none_black_36dp);
+        else
+            notificationsIcon.setImageResource(R.drawable.ic_notifications_active_black_36dp);
+    }
+
+    @OnClick(R.id.notifications)
+    public void onClickNotifications(){
+        startActivity(new Intent(this, NotificationsActivity.class));
     }
 
     @OnClick(R.id.menu_publications)
