@@ -104,7 +104,7 @@ public class SignUpActivity extends Activity implements Validator.ValidationList
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSignFailure(AuthenticationException e) {
+    public void onSignUpFailure(AuthenticationException e) {
         Toast.makeText(this, e.getDescription(), Toast.LENGTH_LONG).show();
     }
 

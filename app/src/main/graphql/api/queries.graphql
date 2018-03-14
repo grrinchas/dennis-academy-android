@@ -1,0 +1,227 @@
+
+mutation authenticate($token: String!) {
+    authenticate(accessToken: $token) {
+        id
+        token
+    }
+}
+
+# Queries
+
+query allPublications {
+    allPublications {
+        ...publicationInfo
+    }
+}
+
+query user($id: ID!) {
+    User(id: $id) {
+        ...userInfo
+        publications {
+            ...publicationInfo
+        }
+    }
+}
+
+query userProfile($username: String!) {
+    User(username: $username) {
+        ...profileInfo
+    }
+}
+
+query allPublicDrafts {
+    allDrafts(filter: {visibility: PUBLIC}) {
+        ...draftInfo
+    }
+}
+
+
+query admin($id: ID!) {
+    User(id: $id) {
+        email
+        ...userInfo
+        drafts {
+            ...draftInfo
+        }
+        likedDrafts {
+            ...draftInfo
+        }
+        likedPublications {
+            ...publicationInfo
+        }
+        publications {
+            ...publicationInfo
+        }
+        sentNotifications {
+            ...notificationInfo
+        }
+        receivedNotifications {
+            ...notificationInfo
+        }
+    }
+}
+
+
+fragment profileInfo on User {
+    ...userInfo
+    drafts(filter: {visibility: PUBLIC}) {
+        ...draftInfo
+    }
+    likedDrafts(filter: {visibility: PUBLIC}) {
+        ...draftInfo
+    }
+}
+fragment notificationInfo on Notification {
+    id
+    createdAt
+    updatedAt
+    type
+    message
+    sender {
+        ...profileInfo
+    }
+    receiver {
+        ...profileInfo
+    }
+}
+
+fragment publicationInfo on Publication {
+    id
+    content
+    title
+    createdAt
+    updatedAt
+    image
+    owner {
+        ...userInfo
+    }
+    _publicationFanMeta {
+        count
+    }
+}
+
+fragment userInfo on User {
+    id
+    username
+    picture
+    bio
+}
+
+fragment draftInfo on Draft {
+    id
+    content
+    title
+    type
+    updatedAt
+    createdAt
+    visibility
+    owner {
+        ...userInfo
+    }
+    _draftFanMeta {
+        count
+    }
+}
+
+
+# user
+
+mutation updateUser($id: ID!, $bio: String!) {
+    updateUser(id: $id, bio: $bio) {
+        ...profileInfo
+    }
+}
+
+# publications
+
+mutation createPublication($ownerId: ID!, $content: String!, $title: String!, $image: String!) {
+    createPublication(ownerId: $ownerId, content: $content, title: $title, image: $image) {
+        ...publicationInfo
+    }
+}
+
+mutation updatePublication($id: ID!, $content: String!, $title: String!, $image: String!) {
+    updatePublication(id: $id, content: $content, title: $title, image: $image) {
+        ...publicationInfo
+    }
+}
+
+mutation deletePublication($id: ID!) {
+    deletePublication(id: $id) {
+        id
+    }
+}
+
+mutation likePublication($userId: ID!, $publicationId: ID!) {
+    addToUserOnLikedPublication(publicationFanUserId: $userId, likedPublicationsPublicationId: $publicationId) {
+        likedPublicationsPublication {
+            id
+        }
+    }
+}
+
+mutation unlikePublication($userId: ID!, $publicationId: ID!) {
+    removeFromUserOnLikedPublication(publicationFanUserId: $userId, likedPublicationsPublicationId: $publicationId) {
+        likedPublicationsPublication {
+            id
+        }
+    }
+}
+
+# drafts
+
+mutation createDraft($ownerId: ID!, $type: DraftType!, $content: String!, $title: String! ) {
+    createDraft(ownerId: $ownerId, type: $type, content: $content, title: $title) {
+        ...draftInfo
+    }
+}
+
+mutation updateDraft($id: ID!, $visibility: Visibility!, $content: String!, $title: String! ) {
+    updateDraft(id: $id, visibility: $visibility, content: $content, title: $title) {
+        ...draftInfo
+    }
+}
+
+mutation deleteDraft($id: ID!) {
+    deleteDraft(id: $id) {
+        id
+    }
+}
+
+mutation likeDraft($userId: ID!, $draftId: ID!) {
+    addToUserOnLikedDraft(draftFanUserId: $userId, likedDraftsDraftId: $draftId) {
+        likedDraftsDraft {
+            id
+        }
+    }
+}
+
+mutation unlikeDraft($userId: ID!, $draftId: ID!) {
+    removeFromUserOnLikedDraft(draftFanUserId: $userId, likedDraftsDraftId: $draftId) {
+        likedDraftsDraft {
+            id
+        }
+    }
+}
+
+
+# notification
+
+mutation createNotification($senderId: ID!, $receiverId: ID!, $type: NotificationType!, $message: String!) {
+    createNotification(senderId: $senderId, receiverId: $receiverId, type: $type, message: $message) {
+        sender {
+            username
+        }
+        receiver {
+            username
+        }
+    }
+}
+
+mutation deleteNotification($id: ID!) {
+    deleteNotification(id: $id) {
+        id
+    }
+}
+
+

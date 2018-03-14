@@ -1,12 +1,18 @@
 package com.dg.dgacademy;
 
 import android.app.Application;
+import android.util.Log;
 
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
 import com.auth0.android.Auth0;
 import com.auth0.android.authentication.AuthenticationAPIClient;
 import com.auth0.android.authentication.AuthenticationException;
 import com.auth0.android.authentication.request.SignUpRequest;
 import com.auth0.android.callback.BaseCallback;
+import com.auth0.android.request.AuthenticationRequest;
 import com.auth0.android.result.Credentials;
 import com.dg.dgacademy.model.Draft;
 import com.dg.dgacademy.model.DraftsEvent;
@@ -22,10 +28,16 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
+import api.AuthenticateMutation;
+
 
 public class DgApplication extends Application {
 
     private static AuthenticationAPIClient auth0Client;
+    private static ApolloClient apolloClient;
+    private static String NETWORK_ERROR;
 
     @Override
     public void onCreate() {
@@ -33,8 +45,47 @@ public class DgApplication extends Application {
 
         Auth0 auth0 = new Auth0(getString(R.string.com_auth0_client_id), getString(R.string.com_auth0_domain));
         auth0.setOIDCConformant(true);
+        NETWORK_ERROR = getString(R.string.network_error);
 
         auth0Client = new AuthenticationAPIClient(auth0);
+
+        apolloClient = ApolloClient.builder().serverUrl(getString(R.string.graphCool_url)).build();
+    }
+
+    public static void login(String email, String password) {
+        AuthenticationRequest request = auth0Client.login(email, password, "academy-db-connection");
+        request.setAudience("dg-academy");
+
+        request.start(new BaseCallback<Credentials, AuthenticationException>() {
+
+            @Override
+            public void onSuccess(Credentials payload) {
+                AuthenticateMutation authenticate = AuthenticateMutation.builder().token(payload.getAccessToken()).build();
+                apolloClient.mutate(authenticate).enqueue(new ApolloCall.Callback<AuthenticateMutation.Data>() {
+                    @Override
+                    public void onResponse(@Nonnull Response<AuthenticateMutation.Data> response) {
+                        if (response.data().authenticate() != null) {
+                            EventBus.getDefault().post(payload);
+                        } else {
+                            EventBus.getDefault().post(new AuthenticationException(NETWORK_ERROR));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@Nonnull ApolloException e) {
+                        EventBus.getDefault().post(new AuthenticationException(NETWORK_ERROR));
+                    }
+
+                });
+            }
+
+            @Override
+            public void onFailure(AuthenticationException error) {
+                EventBus.getDefault().post(error);
+            }
+
+        });
+
     }
 
     public static void signUp(String username, String email, String password) {
@@ -42,7 +93,7 @@ public class DgApplication extends Application {
         request.start(new BaseCallback<Credentials, AuthenticationException>() {
             @Override
             public void onSuccess(Credentials payload) {
-               EventBus.getDefault().post(payload);
+                EventBus.getDefault().post(payload);
             }
 
             @Override
