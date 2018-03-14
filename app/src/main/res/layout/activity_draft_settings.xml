@@ -153,7 +153,7 @@
 
 
             <LinearLayout
-                android:id="@+id/draft_publish"
+                android:id="@+id/draft_new_publication"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:gravity="center_vertical"
@@ -170,7 +170,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/publish"
+                    android:text="@string/new_publication"
                     android:textColor="@color/colorWhite"
                     android:textSize="18sp" />
 
@@ -191,6 +191,56 @@
                 android:background="@color/colorPrimaryAccent" />
 
         </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp">
+
+
+        <LinearLayout
+            android:id="@+id/update_publication"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/ic_update_black_36dp"
+                android:tint="@color/colorAccentSecond" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/update_publication"
+                android:textColor="@color/colorWhite"
+                android:textSize="18sp" />
+
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0"
+                android:src="@drawable/ic_keyboard_arrow_right_black_36dp"
+                android:tint="@color/colorWhiteAccentDark" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimaryAccent" />
+
+    </LinearLayout>
+
+
 
     <LinearLayout
         android:layout_width="match_parent"

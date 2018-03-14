@@ -2,6 +2,12 @@ package com.dg.dgacademy;
 
 import android.app.Application;
 
+import com.auth0.android.Auth0;
+import com.auth0.android.authentication.AuthenticationAPIClient;
+import com.auth0.android.authentication.AuthenticationException;
+import com.auth0.android.authentication.request.SignUpRequest;
+import com.auth0.android.callback.BaseCallback;
+import com.auth0.android.result.Credentials;
 import com.dg.dgacademy.model.Draft;
 import com.dg.dgacademy.model.DraftsEvent;
 import com.dg.dgacademy.model.Notification;
@@ -16,8 +22,35 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class DgApplication extends Application {
 
+    private static AuthenticationAPIClient auth0Client;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        Auth0 auth0 = new Auth0(getString(R.string.com_auth0_client_id), getString(R.string.com_auth0_domain));
+        auth0.setOIDCConformant(true);
+
+        auth0Client = new AuthenticationAPIClient(auth0);
+    }
+
+    public static void signUp(String username, String email, String password) {
+        SignUpRequest request = auth0Client.signUp(email, password, username, "academy-db-connection");
+        request.start(new BaseCallback<Credentials, AuthenticationException>() {
+            @Override
+            public void onSuccess(Credentials payload) {
+               EventBus.getDefault().post(payload);
+            }
+
+            @Override
+            public void onFailure(AuthenticationException error) {
+                EventBus.getDefault().post(error);
+            }
+        });
+    }
 
     public static void requestProfile() {
         Thread thread = new Thread(new Runnable() {
@@ -306,6 +339,8 @@ public class DgApplication extends Application {
 
         thread.start();
     }
+
+
 }
 
 

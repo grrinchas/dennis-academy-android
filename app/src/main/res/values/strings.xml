@@ -13,6 +13,10 @@
     <string name="already_have_an_account">Already have an account?</string>
     <string name="do_not_have_an_account">Do not have an account?</string>
 
+    <string name="com_auth0_client_id">I1a65AA02PGEuHn3ef6j6D2rSrRkqybq</string>
+    <string name="com_auth0_domain">nookit.eu.auth0.com</string>
+
+
     <!-- Errors -->
     <string name="network_error">Network Error</string>
 
@@ -53,7 +57,8 @@
     <string name="edit_title">Title</string>
     <string name="sharing">Sharing</string>
     <string name="edit_markdown">Markdown</string>
-    <string name="publish">Publish</string>
+    <string name="new_publication">New Publication</string>
+    <string name="update_publication">Update Publication</string>
     <string name="duplicate">Duplicate</string>
     <string name="delete">Delete</string>
     <string name="make_public">Public</string>

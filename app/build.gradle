@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 27
     defaultConfig {
+        manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "demo"]
         applicationId 'com.dg.dennisacademy'
         minSdkVersion 24
         targetSdkVersion 27
@@ -43,4 +44,8 @@ dependencies {
     annotationProcessor 'org.parceler:parceler:1.1.9'
     implementation 'com.github.bumptech.glide:glide:4.6.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
+    compile 'com.auth0.android:auth0:1.12.1'
+    compile 'com.mobsandgeeks:android-saripaar:2.0.3'
+
+
 }

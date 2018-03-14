@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.list_row_notification);
-        startActivity(new Intent(this, AllPrivateDraftsActivity.class));
+        startActivity(new Intent(this, SignUpActivity.class));
 
     }
 }

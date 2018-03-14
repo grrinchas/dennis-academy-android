@@ -1,19 +1,26 @@
 package com.dg.dgacademy.activities.draft;
 
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
 import com.dg.dgacademy.model.Draft;
 
 import org.parceler.Parcels;
+
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,6 +58,7 @@ public class DraftSettingsActivity extends AppCompatActivity {
         intent.putExtras(bundle);
         startActivity(intent);
     }
+
     @OnClick(R.id.draft_edit_markdown)
     public void onClickEditMarkdown() {
         Intent intent = new Intent(getApplicationContext(), EditMarkdownActivity.class);
@@ -60,9 +68,39 @@ public class DraftSettingsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    @OnClick(R.id.draft_publish)
+    private static final int PICK_IMAGE = 0;
+
+    @OnClick(R.id.draft_new_publication)
     public void onClickDraftPublish() {
-        Log.d("Draft", "Click publish");
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, PICK_IMAGE);
+        Log.d("Draft", "Click create new publication");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
+            Uri photoUri = data.getData();
+            if (photoUri != null)
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
+                    Log.d("Success", bitmap.toString());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
+        else if (resultCode == Activity.RESULT_CANCELED)
+        {
+            Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    @OnClick(R.id.update_publication)
+    public void onClickUpdatePublication() {
+        Log.d("Draft", "Click update publication");
     }
 
     @OnClick(R.id.draft_duplicate)

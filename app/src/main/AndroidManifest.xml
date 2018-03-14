@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.dg.dgacademy">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-sdk tools:overrideLibrary="com.packagename.of.libary.with.conflict" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
