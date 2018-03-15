@@ -9,16 +9,12 @@ import android.widget.TextView;
 
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
-import com.dg.dgacademy.model.Draft;
 import com.dg.dgacademy.model.DraftsEvent;
-import com.dg.dgacademy.model.Publication;
 import com.dg.dgacademy.model.PublicationsEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
-import com.dg.dgacademy.model.Publication;
 import com.dg.dgacademy.model.PublicationsEvent;
 import com.squareup.picasso.Picasso;
 
@@ -29,6 +28,7 @@ import org.parceler.Parcels;
 import java.util.Collections;
 import java.util.List;
 
+import api.fragment.PublicationInfo;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -52,6 +52,7 @@ public class AllPrivatePublicationsActivity extends AppCompatActivity {
 
         DgApplication.requestPrivatePublications();
         initRecyclerView();
+
     }
 
     @OnClick(R.id.toolbar_menu)
@@ -101,9 +102,9 @@ public class AllPrivatePublicationsActivity extends AppCompatActivity {
 
     private class PublicationsAdapter extends RecyclerView.Adapter<PublicationsHolder> {
 
-        List<Publication> publications;
+        List<PublicationInfo> publications;
 
-        PublicationsAdapter(List<Publication> pubs) {
+        PublicationsAdapter(List<PublicationInfo> pubs) {
             this.publications = pubs;
         }
 
@@ -115,19 +116,17 @@ public class AllPrivatePublicationsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(PublicationsHolder holder, int position) {
-            Publication pub = publications.get(position);
-            Picasso.get().load(pub.url).fit().into(holder.image);
+            PublicationInfo pub = publications.get(position);
+            Picasso.get().load(pub.image()).fit().into(holder.image);
             setPublication(holder, pub);
         }
 
 
-        void setPublication(PublicationsHolder holder, Publication pub) {
-            holder.title.setText(pub.title);
+        void setPublication(PublicationsHolder holder, PublicationInfo pub) {
+            holder.title.setText(pub.title());
             holder.publication.setOnClickListener(v -> {
                 Intent intent = new Intent(getApplicationContext(), PrivatePublicationActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("BUNDLE", Parcels.wrap(pub));
-                intent.putExtras(bundle);
+                intent.putExtra("ID", pub.id());
                 startActivity(intent);
             });
         }

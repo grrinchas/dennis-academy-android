@@ -177,6 +177,7 @@ public class NotificationsActivity extends AppCompatActivity {
             Optional<String> draftTitle = drafts.stream().filter(d -> Objects.equals(d.id(), note.message())).map(DraftInfo::title).findFirst();
             Optional<String> pubTitle = publications.stream().filter(d -> Objects.equals(d.id(), note.message())).map(PublicationInfo::title).findFirst();
 
+
             switch (note.type()) {
                 case LIKED_DRAFT:
                     holder.actionImage.setImageResource(R.drawable.ic_favorite_black_36dp);

@@ -18,7 +18,6 @@ import android.widget.TextView;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
-import com.dg.dgacademy.model.Publication;
 import com.dg.dgacademy.model.PublicationsEvent;
 import com.squareup.picasso.Picasso;
 
@@ -27,9 +26,13 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.parceler.Parcels;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 
+import api.fragment.ProfileInfo;
+import api.fragment.PublicationInfo;
+import api.fragment.UserInfo;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -102,9 +105,9 @@ public class AllPublicationsActivity extends AppCompatActivity {
 
     private class PublicationsAdapter extends RecyclerView.Adapter<PublicationsHolder> {
 
-        List<Publication> publications;
+        List<PublicationInfo> publications;
 
-        PublicationsAdapter(List<Publication> publications) {
+        PublicationsAdapter(List<PublicationInfo> publications) {
             this.publications = publications;
         }
 
@@ -116,39 +119,37 @@ public class AllPublicationsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(PublicationsHolder holder, int position) {
-            Publication pub = publications.get(position);
+            PublicationInfo pub = publications.get(position);
             setCreatedAt(holder, pub);
             setOwner(holder, pub);
             setPublication(holder, pub);
             setLikes(holder, pub);
         }
 
-        void setCreatedAt(PublicationsHolder holder, Publication pub) {
-            holder.createdAt.setText(pub.createdAt);
+        void setCreatedAt(PublicationsHolder holder, PublicationInfo pub) {
+            holder.createdAt.setText(new SimpleDateFormat("MMMM dd, yyyy").format(pub.createdAt()));
         }
 
-        void setOwner(PublicationsHolder holder, Publication pub) {
-            Picasso.get().load(pub.owner.picture).fit().into(holder.ownerPicture);
-            holder.ownerName.setText(pub.owner.name);
+        void setOwner(PublicationsHolder holder, PublicationInfo pub) {
+            UserInfo info =pub.owner().fragments().userInfo();
+            Picasso.get().load(info.picture()).fit().into(holder.ownerPicture);
+            holder.ownerName.setText(info.username());
             holder.ownerName.setOnClickListener(v -> Log.d("Publications", "Click on draft owner"));
         }
 
-        void setPublication(PublicationsHolder holder, Publication pub) {
-            Picasso.get().load("https://s10.postimg.org/59ghom4x5/appetizer-canape-canapes-cheese-41967.jpg").into(holder.image);
-            holder.title.setText(pub.title);
+        void setPublication(PublicationsHolder holder, PublicationInfo pub) {
+            Picasso.get().load(pub.image()).into(holder.image);
+            holder.title.setText(pub.title());
 
             holder.image.setOnClickListener(v -> {
                 Intent intent = new Intent(getApplicationContext(), PublicationActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("BUNDLE", Parcels.wrap(pub));
-                intent.putExtras(bundle);
-
+                intent.putExtra("ID", pub.id());
                 startActivity(intent);
             });
         }
 
-        void setLikes(PublicationsHolder holder, Publication pub) {
-            holder.likesCount.setText("LIKES (" + String.valueOf(pub.likes) + ")");
+        void setLikes(PublicationsHolder holder, PublicationInfo pub) {
+            holder.likesCount.setText("LIKES (" + String.valueOf(pub._publicationFanMeta().count()) + ")");
         }
 
         @Override
