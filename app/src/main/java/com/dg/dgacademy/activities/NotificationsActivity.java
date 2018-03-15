@@ -1,7 +1,9 @@
 package com.dg.dgacademy.activities;
 
+import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -14,36 +16,51 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.apollographql.apollo.api.cache.http.HttpCachePolicy;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
-import com.dg.dgacademy.model.Notification;
-import com.dg.dgacademy.model.NotificationsEvent;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.function.BooleanSupplier;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import api.AdminQuery;
+import api.DeleteNotificationMutation;
+import api.fragment.DraftInfo;
+import api.fragment.NotificationInfo;
+import api.fragment.PublicationInfo;
+import api.fragment.UserInfo;
+import api.type.NotificationType;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
+public class NotificationsActivity extends AppCompatActivity {
 
-public class NotificationsActivity extends AppCompatActivity{
+    private ArticleAdapter adapter;
 
-    private ArticleAdapter draftsAdapter;
-    private ArticleAdapter publicationsAdapter;
-
-    @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.publications_recycler_view) RecyclerView publicationsRecyclerView;
-    @BindView(R.id.drafts_recycler_view) RecyclerView draftsRecyclerView;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -54,15 +71,15 @@ public class NotificationsActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestNotifications();
-        initRecyclerViews();
+        DgApplication.requestAdmin();
+
+        initRecyclerView();
     }
 
     @OnClick(R.id.toolbar_menu)
     public void onClickToolbarMenu() {
         startActivity(new Intent(this, MenuActivity.class));
     }
-
 
     @Override
     protected void onStart() {
@@ -76,46 +93,56 @@ public class NotificationsActivity extends AppCompatActivity{
         EventBus.getDefault().unregister(this);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onNotificationsRequest(NotificationsEvent event) {
-        List<Notification> drafts = new ArrayList<>();
-        List<Notification> publications = new ArrayList<>();
-        for(Notification n: event.notifications) {
-            if(n.type == Notification.Type.LIKE_DRAFT || n.type == Notification.Type.UNLIKE_DRAFT)
-                drafts.add(n);
-            else
-                publications.add(n);
-        }
 
-        publicationsAdapter.notifications = publications;
-        publicationsAdapter.notifyDataSetChanged();
-
-        draftsAdapter.notifications = drafts;
-        draftsAdapter.notifyDataSetChanged();
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeleteNotification(DeleteNotificationMutation.DeleteNotification note) {
+        Toast.makeText(this, getString(R.string.deleted_notifications), Toast.LENGTH_LONG).show();
+        DgApplication.requestAdmin();
     }
-    private void initRecyclerViews() {
-        draftsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        draftsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        draftsAdapter = new ArticleAdapter(Collections.emptyList());
-        draftsRecyclerView.setAdapter(draftsAdapter);
 
-        publicationsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        publicationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        publicationsAdapter = new ArticleAdapter(Collections.emptyList());
-        publicationsRecyclerView.setAdapter(publicationsAdapter);
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onNotificationsRequest(AdminQuery.User user) {
+        Log.d("should", String.valueOf(user.receivedNotifications().size()));
+        adapter.publications.clear();
+        adapter.drafts.clear();
+        adapter.notifications.clear();
+        adapter.publications.addAll(user.publications().stream().map(p -> p.fragments().publicationInfo()).collect(Collectors.toList()));
+        adapter.drafts.addAll(user.drafts().stream().map(p -> p.fragments().draftInfo()).collect(Collectors.toList()));
+        adapter.notifications.addAll(
+                user.receivedNotifications()
+                        .stream()
+                        .map(n -> n.fragments().notificationInfo())
+                        .collect(Collectors.toList()));
+        adapter.notifyDataSetChanged();
+        EventBus.getDefault().removeAllStickyEvents();
+    }
+
+    private void initRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        adapter = new ArticleAdapter();
+        recyclerView.setAdapter(adapter);
+
     }
 
     class ArticleHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.note_username) TextView username;
-        @BindView(R.id.note_picture) ImageView picture;
-        @BindView(R.id.note_article) TextView article;
-        @BindView(R.id.note_created_at) TextView createdAt;
-        @BindView(R.id.note_delete) ImageView delete;
-        @BindView(R.id.note_action_row) View actionRow;
-        @BindView(R.id.note_action_text) TextView actionText;
-        @BindView(R.id.note_action_image) ImageView actionImage;
+        @BindView(R.id.note_username)
+        TextView username;
+        @BindView(R.id.note_picture)
+        ImageView picture;
+        @BindView(R.id.note_article)
+        TextView article;
+        @BindView(R.id.note_created_at)
+        TextView createdAt;
+        @BindView(R.id.note_delete)
+        ImageView delete;
+        @BindView(R.id.note_action_row)
+        View actionRow;
+        @BindView(R.id.note_action_text)
+        TextView actionText;
+        @BindView(R.id.note_action_image)
+        ImageView actionImage;
 
 
         ArticleHolder(View view) {
@@ -126,11 +153,10 @@ public class NotificationsActivity extends AppCompatActivity{
 
     private class ArticleAdapter extends RecyclerView.Adapter<ArticleHolder> {
 
-        List<Notification> notifications;
+        List<NotificationInfo> notifications = new ArrayList<>();
+        List<DraftInfo> drafts = new ArrayList<>();
+        List<PublicationInfo> publications = new ArrayList<>();
 
-        ArticleAdapter(List<Notification> notifications) {
-            this.notifications = notifications;
-        }
 
         @Override
         public ArticleHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -140,63 +166,62 @@ public class NotificationsActivity extends AppCompatActivity{
 
         @Override
         public void onBindViewHolder(ArticleHolder holder, int position) {
-            Notification note = notifications.get(position);
-            holder.createdAt.setText(note.createdAt);
-            Picasso.get().load(note.sender.picture).fit().into(holder.picture);
-            holder.username.setText(note.sender.name);
+            NotificationInfo note = notifications.get(position);
+            holder.createdAt.setText(new SimpleDateFormat("MMMM dd, yyyy").format(note.createdAt()));
+            UserInfo sender = note.sender().fragments().profileInfo().fragments().userInfo();
+            Picasso.get().load(sender.picture()).fit().into(holder.picture);
+            holder.username.setText(sender.username());
             holder.picture.setOnClickListener(v -> Log.d("Note", "Click display sender profile"));
-            holder.delete.setOnClickListener(v -> Log.d("Note","Click delete notification"));
+            holder.delete.setOnClickListener(v -> DgApplication.deleteNotification(note.id()));
 
+            Optional<String> draftTitle = drafts.stream().filter(d -> Objects.equals(d.id(), note.message())).map(DraftInfo::title).findFirst();
+            Optional<String> pubTitle = publications.stream().filter(d -> Objects.equals(d.id(), note.message())).map(PublicationInfo::title).findFirst();
 
-            switch (note.type) {
-                case LIKE_DRAFT:
+            switch (note.type()) {
+                case LIKED_DRAFT:
                     holder.actionImage.setImageResource(R.drawable.ic_favorite_black_36dp);
                     holder.actionText.setText(R.string.your_draft);
-                    if(note.isPresent) {
+                    if (draftTitle.isPresent()) {
                         holder.actionRow.setOnClickListener(v -> Log.d("Note", "Click display article"));
-                        holder.article.setText(note.message);
+                        holder.article.setText(draftTitle.get());
                         holder.article.setTextColor(getResources().getColor(R.color.colorNotification));
-                    }
-                    else {
+                    } else {
                         holder.article.setText(R.string.draft_deleted);
                         holder.article.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
                     }
                     return;
-                case UNLIKE_DRAFT:
+                case UNLIKED_DRAFT:
                     holder.actionImage.setImageResource(R.drawable.ic_favorite_border_black_36dp);
                     holder.actionText.setText(R.string.your_draft);
-                    if(note.isPresent) {
+                    if (draftTitle.isPresent()) {
                         holder.actionRow.setOnClickListener(v -> Log.d("Note", "Click display article"));
-                        holder.article.setText(note.message);
+                        holder.article.setText(draftTitle.get());
                         holder.article.setTextColor(getResources().getColor(R.color.colorNotification));
-                    }
-                    else {
+                    } else {
                         holder.article.setText(R.string.draft_deleted);
                         holder.article.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
                     }
                     return;
-                case LIKE_PUBLICATION:
+                case LIKED_PUBLICATION:
                     holder.actionImage.setImageResource(R.drawable.ic_favorite_black_36dp);
                     holder.actionText.setText(R.string.your_publication);
-                    if(note.isPresent) {
+                    if (pubTitle.isPresent()) {
                         holder.actionRow.setOnClickListener(v -> Log.d("Note", "Click display article"));
-                        holder.article.setText(note.message);
+                        holder.article.setText(pubTitle.get());
                         holder.article.setTextColor(getResources().getColor(R.color.colorNotification));
-                    }
-                    else {
+                    } else {
                         holder.article.setText(R.string.publication_deleted);
                         holder.article.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
                     }
                     return;
-                case UNLIKE_PUBLICATION:
+                case UNLIKED_PUBLICATION:
                     holder.actionImage.setImageResource(R.drawable.ic_favorite_border_black_36dp);
                     holder.actionText.setText(R.string.your_publication);
-                    if(note.isPresent) {
+                    if (pubTitle.isPresent()) {
                         holder.actionRow.setOnClickListener(v -> Log.d("Note", "Click display article"));
-                        holder.article.setText(note.message);
+                        holder.article.setText(pubTitle.get());
                         holder.article.setTextColor(getResources().getColor(R.color.colorNotification));
-                    }
-                    else {
+                    } else {
                         holder.article.setText(R.string.publication_deleted);
                         holder.article.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
                     }

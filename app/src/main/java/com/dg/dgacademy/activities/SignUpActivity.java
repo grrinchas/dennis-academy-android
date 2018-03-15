@@ -103,10 +103,6 @@ public class SignUpActivity extends Activity implements Validator.ValidationList
         startActivity(new Intent(this, LoginActivity.class));
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSignUpFailure(AuthenticationException e) {
-        Toast.makeText(this, e.getDescription(), Toast.LENGTH_LONG).show();
-    }
 
     @Override
     public void onValidationFailed(List<ValidationError> errors) {

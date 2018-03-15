@@ -11,6 +11,10 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        apollo {
+            customTypeMapping['DateTime'] = "java.util.Date"
+        }
+
     }
     buildTypes {
         release {
@@ -48,6 +52,7 @@ dependencies {
     compile 'com.auth0.android:auth0:1.12.1'
     compile 'com.mobsandgeeks:android-saripaar:2.0.3'
     compile 'com.apollographql.apollo:apollo-runtime:0.4.4'
-    compile 'com.apollographql.apollo:apollo-http-cache:0.4.4'
+    compile 'com.apollographql.apollo:apollo-android-support:0.4.4'
+
 
 }

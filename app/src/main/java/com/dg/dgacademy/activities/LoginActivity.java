@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import com.apollographql.apollo.api.Response;
 import com.auth0.android.authentication.AuthenticationException;
+import com.auth0.android.authentication.storage.SecureCredentialsManager;
+import com.auth0.android.authentication.storage.SharedPreferencesStorage;
 import com.auth0.android.result.Credentials;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
@@ -30,7 +32,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class LoginActivity extends Activity implements Validator.ValidationListener{
+public class LoginActivity extends Activity implements Validator.ValidationListener {
 
     @NotEmpty
     @Email
@@ -81,13 +83,9 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
         startActivity(new Intent(this, MenuActivity.class));
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onLoginFailure(AuthenticationException e) {
-        Toast.makeText(this, getString(R.string.network_error), Toast.LENGTH_LONG).show();
-    }
-
     @Override
     public void onValidationSucceeded() {
+
         DgApplication.login(email.getText().toString(), password.getText().toString());
     }
 

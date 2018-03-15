@@ -46,6 +46,7 @@
     <string name="about">About</string>
 
     <!-- Notifications -->
+    <string name="deleted_notifications">Notification has been deleted</string>
     <string name="your_draft">your draft</string>
     <string name="your_publication">your publication</string>
     <string name="draft_deleted">Draft has been deleted</string>

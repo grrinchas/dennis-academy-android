@@ -7,18 +7,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 
+import com.apollographql.apollo.api.cache.http.HttpCachePolicy;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.draft.AllDraftsActivity;
 import com.dg.dgacademy.activities.draft.AllPrivateDraftsActivity;
 import com.dg.dgacademy.activities.publication.AllPrivatePublicationsActivity;
 import com.dg.dgacademy.activities.publication.AllPublicationsActivity;
-import com.dg.dgacademy.model.NotificationsEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import api.AdminQuery;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -36,9 +37,10 @@ public class MenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_menu);
         ButterKnife.bind(this);
 
-        DgApplication.requestNotifications();
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        DgApplication.requestAdmin();
     }
 
     @Override
@@ -54,15 +56,15 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onNotificationsRequest(NotificationsEvent event) {
-        if (event.notifications.isEmpty())
-            notificationsIcon.setImageResource(R.drawable.ic_notifications_none_black_36dp);
-        else
+    public void onNotificationsRequest(AdminQuery.User user) {
+        if (!user.receivedNotifications().isEmpty()) {
             notificationsIcon.setImageResource(R.drawable.ic_notifications_active_black_36dp);
+        }
+        EventBus.getDefault().removeAllStickyEvents();
     }
 
     @OnClick(R.id.notifications)
-    public void onClickNotifications(){
+    public void onClickNotifications() {
         startActivity(new Intent(this, NotificationsActivity.class));
     }
 
