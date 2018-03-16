@@ -9,9 +9,9 @@ import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
-import com.dg.dgacademy.model.Profile;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -20,6 +20,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.parceler.Parcels;
 
 
+import api.AdminQuery;
+import api.fragment.UserInfo;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -31,7 +33,8 @@ public class ProfileActivity extends AppCompatActivity{
     @BindView(R.id.email) TextView email;
     @BindView(R.id.username) TextView username;
 
-    private Profile profile;
+    private String id;
+    private String bio;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -42,7 +45,7 @@ public class ProfileActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestProfile();
+        DgApplication.requestAdmin(ApolloResponseFetchers.CACHE_FIRST);
 
     }
 
@@ -54,9 +57,7 @@ public class ProfileActivity extends AppCompatActivity{
     @OnClick(R.id.bio)
     public void onClickBio (){
         Intent intent = new Intent(getApplicationContext(), AboutActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("BUNDLE", Parcels.wrap(profile.bio));
-        intent.putExtras(bundle);
+        intent.putExtra("BIO", bio);
         startActivity(intent);
     }
 
@@ -73,10 +74,12 @@ public class ProfileActivity extends AppCompatActivity{
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onProfileRequest(Profile profile) {
-        this.profile = profile;
-        Picasso.get().load(profile.picture).fit().into(picture);
-        email.setText(profile.email);
-        username.setText(profile.username);
+    public void onProfileRequest(AdminQuery.User user) {
+        UserInfo  userInfo = user.fragments().userInfo();
+        this.id = userInfo.id();
+        this.bio = userInfo.bio();
+        Picasso.get().load(userInfo.picture()).fit().into(picture);
+        email.setText(user.email());
+        username.setText(userInfo.username());
     }
 }

@@ -17,6 +17,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.stream.Collectors;
+
+import api.AdminQuery;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -36,8 +39,7 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
         ButterKnife.bind(this);
-        DgApplication.requestPublicDrafts(ApolloResponseFetchers.CACHE_FIRST);
-        DgApplication.requestPublicPublications(ApolloResponseFetchers.CACHE_FIRST);
+        DgApplication.requestAdmin(ApolloResponseFetchers.CACHE_FIRST);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -62,12 +64,14 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onDraftsRequest(DraftsEvent event) {
-        totalDrafts.setText(String.valueOf(event.drafts.size()));
+    public void onAdminRequest(AdminQuery.User user) {
+        totalDrafts.setText(String.valueOf(user.drafts().size()));
+        totalPublications.setText(String.valueOf(user.publications().size()));
+        int yourLikes = user.likedDrafts().size() + user.likedPublications().size();
+        totalYourLikes.setText(String.valueOf(yourLikes));
+        long draftLikes = user.drafts().stream().mapToLong(d -> d.fragments().draftInfo()._draftFanMeta().count()).sum();
+        long pubsLikes = user.publications().stream().mapToLong(d -> d.fragments().publicationInfo()._publicationFanMeta().count()).sum();
+        totalLikes.setText(String.valueOf(draftLikes + pubsLikes));
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
-    public void onPublicationsRequest(PublicationsEvent event) {
-        totalPublications.setText(String.valueOf(event.publications.size()));
-    }
 }

@@ -37,12 +37,12 @@
         android:padding="8dp">
 
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/publications_owner_picture"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginRight="8dp"
-            android:src="@drawable/ic_person_black_36dp" />
+            />
 
         <LinearLayout
             android:layout_width="wrap_content"

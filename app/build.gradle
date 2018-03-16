@@ -53,6 +53,6 @@ dependencies {
     compile 'com.mobsandgeeks:android-saripaar:2.0.3'
     compile 'com.apollographql.apollo:apollo-runtime:0.4.4'
     compile 'com.apollographql.apollo:apollo-android-support:0.4.4'
-
+    compile 'de.hdodenhof:circleimageview:2.2.0'
 
 }

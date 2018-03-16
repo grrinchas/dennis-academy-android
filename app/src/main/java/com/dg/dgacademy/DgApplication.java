@@ -10,6 +10,7 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.CustomTypeAdapter;
 import com.apollographql.apollo.api.Operation;
+import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.api.ResponseField;
 import com.apollographql.apollo.api.cache.http.HttpCachePolicy;
@@ -21,7 +22,6 @@ import com.apollographql.apollo.cache.normalized.lru.LruNormalizedCacheFactory;
 import com.apollographql.apollo.cache.normalized.sql.ApolloSqlHelper;
 import com.apollographql.apollo.cache.normalized.sql.SqlNormalizedCacheFactory;
 import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.apollographql.apollo.fetcher.ResponseFetcher;
 import com.auth0.android.Auth0;
 import com.auth0.android.authentication.AuthenticationAPIClient;
@@ -36,8 +36,6 @@ import com.auth0.android.result.Credentials;
 import com.dg.dgacademy.activities.LoginActivity;
 import com.dg.dgacademy.model.DraftsEvent;
 import com.dg.dgacademy.model.GlobalNetworkException;
-import com.dg.dgacademy.model.Owner;
-import com.dg.dgacademy.model.Profile;
 import com.dg.dgacademy.model.PublicationsEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -46,7 +44,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -66,6 +63,7 @@ import api.DeleteDraftMutation;
 import api.DeleteNotificationMutation;
 import api.DeletePublicationMutation;
 import api.UpdateDraftMutation;
+import api.UpdateUserMutation;
 import api.fragment.DraftInfo;
 import api.fragment.PublicationInfo;
 import api.type.CustomType;
@@ -152,24 +150,6 @@ public class DgApplication extends Application {
     public void onRefreshTokenFailure(CredentialsManagerException e) {
         Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
         startActivity(new Intent(this, LoginActivity.class));
-    }
-
-    public static void requestProfile() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Profile profile = new Profile();
-
-                profile.id = "1";
-                profile.username = "admin1";
-                profile.picture = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
-                profile.bio = "This is some bio";
-                profile.email = "dg4675dg@gmail.com";
-
-                EventBus.getDefault().postSticky(profile);
-            }
-        });
-        thread.start();
     }
 
     public static void requestPublicDrafts(ResponseFetcher fetcher) {
@@ -444,7 +424,7 @@ public class DgApplication extends Application {
         });
     }
 
-    public static void updateDraft(UpdateDraftMutation update) {
+      public static void updateDraft(UpdateDraftMutation update) {
         checkCredentials(() -> {
             AllPublicDraftsQuery draftsQuery = AllPublicDraftsQuery.builder().build();
             AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
@@ -453,6 +433,29 @@ public class DgApplication extends Application {
                 public void onResponse(@Nonnull Response<UpdateDraftMutation.Data> response) {
                     if (response.data().updateDraft() != null) {
                         EventBus.getDefault().post(response.data().updateDraft());
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+        });
+    }
+    public static void updateUser(String bio) {
+        checkCredentials(() -> {
+            AllPublicDraftsQuery draftsQuery = AllPublicDraftsQuery.builder().build();
+            AllPublicationsQuery pubsQuery = AllPublicationsQuery.builder().build();
+            AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
+            UpdateUserMutation update = UpdateUserMutation.builder().bio(bio).id(USER_ID).build();
+            apolloClient.mutate(update).refetchQueries(adminQuery, draftsQuery, pubsQuery).enqueue(new ApolloCall.Callback<UpdateUserMutation.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<UpdateUserMutation.Data> response) {
+                    if (response.data().updateUser() != null) {
+                        EventBus.getDefault().post(response.data().updateUser());
                     } else {
                         EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
                     }
