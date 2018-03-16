@@ -9,10 +9,10 @@ import android.widget.EditText;
 
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
-import com.dg.dgacademy.model.Draft;
 
 import org.parceler.Parcels;
 
+import api.fragment.DraftInfo;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -33,8 +33,8 @@ public class EditDraftTitleActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        Draft draft = Parcels.unwrap(getIntent().getExtras().getParcelable("BUNDLE"));
-        draftTitle.setText(draft.title);
+        DraftInfo draft = Parcels.unwrap(getIntent().getExtras().getParcelable("BUNDLE"));
+        draftTitle.setText(draft.title());
     }
 
     @OnClick(R.id.toolbar_menu)

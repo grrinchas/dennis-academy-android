@@ -16,12 +16,12 @@ import android.widget.Toast;
 
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
-import com.dg.dgacademy.model.Draft;
 
 import org.parceler.Parcels;
 
 import java.io.IOException;
 
+import api.fragment.DraftInfo;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
@@ -32,7 +32,7 @@ public class DraftSettingsActivity extends AppCompatActivity {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
-    private Draft draft;
+    private DraftInfo draft;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {

@@ -18,18 +18,19 @@ import android.widget.TextView;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
-import com.dg.dgacademy.model.Draft;
 import com.dg.dgacademy.model.DraftsEvent;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.parceler.Parcels;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 
+import api.fragment.DraftInfo;
+import api.fragment.UserInfo;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -104,9 +105,9 @@ public class AllDraftsActivity extends AppCompatActivity {
 
     private class DraftsAdapter extends RecyclerView.Adapter<DraftsHolder> {
 
-        List<Draft> drafts;
+        List<DraftInfo> drafts;
 
-        DraftsAdapter(List<Draft> drafts) {
+        DraftsAdapter(List<DraftInfo> drafts) {
             this.drafts = drafts;
         }
 
@@ -118,37 +119,41 @@ public class AllDraftsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(DraftsHolder holder, int position) {
-            Draft draft = drafts.get(position);
+            DraftInfo draft = drafts.get(position);
             setCreatedAt(holder, draft);
             setOwner(holder, draft);
             setDraft(holder, draft);
             setLikes(holder, draft);
         }
 
-        void setCreatedAt(DraftsHolder holder, Draft pub) {
-            holder.createdAt.setText(pub.createdAt);
+        void setCreatedAt(DraftsHolder holder, DraftInfo pub) {
+            holder.createdAt.setText(new SimpleDateFormat("MMMM dd, yyyy").format(pub.createdAt()));
         }
 
-        void setOwner(DraftsHolder holder, Draft pub) {
-            Picasso.get().load(pub.owner.picture).fit().into(holder.ownerPicture);
-            holder.ownerName.setText(pub.owner.name);
+        void setOwner(DraftsHolder holder, DraftInfo pub) {
+            UserInfo owner = pub.owner().fragments().userInfo();
+            Picasso.get().load(owner.picture()).fit().into(holder.ownerPicture);
+            holder.ownerName.setText(owner.username());
             holder.ownerName.setOnClickListener(v -> Log.d("Drafts", "Click on draft owner"));
         }
 
-        void setDraft(DraftsHolder holder, Draft pub) {
-            holder.title.setText(pub.title);
-            holder.preview.setText(pub.content);
+        void setDraft(DraftsHolder holder, DraftInfo pub) {
+            holder.title.setText(pub.title());
+
+            if(pub.content().length() <= 70)
+                holder.preview.setText(pub.content());
+            else
+                holder.preview.setText(pub.content().substring(0, 70));
+
             holder.preview.setOnClickListener(v -> {
                 Intent intent = new Intent(getApplicationContext(), DraftActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("BUNDLE", Parcels.wrap(pub));
-                intent.putExtras(bundle);
+                intent.putExtra("ID", pub.id());
                 startActivity(intent);
             });
         }
 
-        void setLikes(DraftsHolder holder, Draft pub) {
-            holder.likesCount.setText("LIKES (" + String.valueOf(pub.likes) + ")");
+        void setLikes(DraftsHolder holder, DraftInfo pub) {
+            holder.likesCount.setText("LIKES (" + String.valueOf(pub._draftFanMeta().count()) + ")");
         }
 
         @Override

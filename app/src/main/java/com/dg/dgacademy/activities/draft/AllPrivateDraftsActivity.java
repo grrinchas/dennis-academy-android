@@ -16,7 +16,6 @@ import android.widget.TextView;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
-import com.dg.dgacademy.model.Draft;
 import com.dg.dgacademy.model.DraftsEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -27,6 +26,7 @@ import org.parceler.Parcels;
 import java.util.Collections;
 import java.util.List;
 
+import api.fragment.DraftInfo;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -96,9 +96,9 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
 
     private class DraftsAdapter extends RecyclerView.Adapter<DraftsHolder> {
 
-        List<Draft> drafts;
+        List<DraftInfo> drafts;
 
-        DraftsAdapter(List<Draft> drafts) {
+        DraftsAdapter(List<DraftInfo> drafts) {
             this.drafts = drafts;
         }
 
@@ -110,18 +110,16 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(DraftsHolder holder, int position) {
-            Draft draft = drafts.get(position);
+            DraftInfo draft = drafts.get(position);
             setDraft(holder, draft);
         }
 
 
-        void setDraft(DraftsHolder holder, Draft pub) {
-            holder.title.setText(pub.title);
+        void setDraft(DraftsHolder holder, DraftInfo pub) {
+            holder.title.setText(pub.title());
             holder.draft.setOnClickListener(v -> {
                 Intent intent = new Intent(getApplicationContext(), PrivateDraftActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("BUNDLE", Parcels.wrap(pub));
-                intent.putExtras(bundle);
+                intent.putExtra("ID", pub.id());
                 startActivity(intent);
             });
         }

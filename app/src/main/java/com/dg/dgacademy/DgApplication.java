@@ -21,6 +21,7 @@ import com.apollographql.apollo.cache.normalized.lru.LruNormalizedCacheFactory;
 import com.apollographql.apollo.cache.normalized.sql.ApolloSqlHelper;
 import com.apollographql.apollo.cache.normalized.sql.SqlNormalizedCacheFactory;
 import com.apollographql.apollo.exception.ApolloException;
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.auth0.android.Auth0;
 import com.auth0.android.authentication.AuthenticationAPIClient;
 import com.auth0.android.authentication.AuthenticationException;
@@ -32,7 +33,6 @@ import com.auth0.android.callback.BaseCallback;
 import com.auth0.android.request.AuthenticationRequest;
 import com.auth0.android.result.Credentials;
 import com.dg.dgacademy.activities.LoginActivity;
-import com.dg.dgacademy.model.Draft;
 import com.dg.dgacademy.model.DraftsEvent;
 import com.dg.dgacademy.model.GlobalNetworkException;
 import com.dg.dgacademy.model.Owner;
@@ -56,11 +56,16 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import api.AdminQuery;
+import api.AllPublicDraftsQuery;
 import api.AllPublicationsQuery;
 import api.AuthenticateMutation;
+import api.CreateDraftMutation;
 import api.DeleteNotificationMutation;
+import api.DeletePublicationMutation;
+import api.fragment.DraftInfo;
 import api.fragment.PublicationInfo;
 import api.type.CustomType;
+import api.type.DraftType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -164,50 +169,27 @@ public class DgApplication extends Application {
     }
 
     public static void requestPublicDrafts() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<Draft> drafts = new ArrayList<>();
+        checkCredentials(() -> {
+            AllPublicDraftsQuery query = AllPublicDraftsQuery.builder().build();
 
+            apolloClient.query(query).enqueue(new ApolloCall.Callback<AllPublicDraftsQuery.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<AllPublicDraftsQuery.Data> response) {
+                    if (response.data().allDrafts() != null) {
+                        List<DraftInfo> drafts = response.data().allDrafts()
+                                .stream().map(p -> p.fragments().draftInfo()).collect(Collectors.toList());
+                        EventBus.getDefault().postSticky(new DraftsEvent(drafts));
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+                }
 
-                Draft info1 = new Draft();
-                info1.id = "1";
-                info1.title = "Lorem Ipsum 2";
-                info1.createdAt = "Jan 23, 2019";
-                info1.content = "# This is big header \n \n ## Smaller header \n\n * List Item 1 \n * List Item 2\n\n [I am a link](https://www.google.co.uk)";
-                info1.likes = 20;
-
-                Owner owner1 = new Owner();
-                owner1.name = "admin1";
-
-                owner1.picture = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
-                owner1.bio = "This is some bio";
-                info1.owner = owner1;
-
-                Draft info2 = new Draft();
-
-                info2.id = "2";
-                info2.title = "Lorem Ipsum 2";
-                info2.createdAt = "Jan 23, 2019";
-                info2.likes = 20;
-
-                Owner owner2 = new Owner();
-                owner2.name = "admin1";
-                owner2.picture = "https://media.istockphoto.com/photos/growing-money-chart-in-rise-picture-id506181336";
-                owner2.bio = "This is some bio";
-                info2.content = "# This is big header \n \n ## Smaller header \n\n * List Item 1 \n * List Item 2\n\n [I am a link](https://www.google.co.uk)";
-                info2.owner = owner2;
-
-                drafts.add(info1);
-                drafts.add(info2);
-
-                DraftsEvent event = new DraftsEvent();
-                event.drafts = drafts;
-                EventBus.getDefault().postSticky(event);
-            }
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
         });
-        thread.start();
-
     }
 
     public static void requestPublicPublications() {
@@ -218,9 +200,58 @@ public class DgApplication extends Application {
                 @Override
                 public void onResponse(@Nonnull Response<AllPublicationsQuery.Data> response) {
                     if (response.data().allPublications() != null) {
-                        EventBus.getDefault().post(response.data().allPublications());
                         List<PublicationInfo> publications = response.data().allPublications().stream().map(p -> p.fragments().publicationInfo()).collect(Collectors.toList());
                         EventBus.getDefault().postSticky(new PublicationsEvent(publications));
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+        });
+    }
+
+    public static void requestPublicDraft(String id) {
+        checkCredentials(() -> {
+            AllPublicDraftsQuery query = AllPublicDraftsQuery.builder().build();
+
+            apolloClient.query(query).enqueue(new ApolloCall.Callback<AllPublicDraftsQuery.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<AllPublicDraftsQuery.Data> response) {
+                    if (response.data().allDrafts() != null) {
+                        List<DraftInfo> drafts = response.data().allDrafts()
+                                .stream().map(p -> p.fragments().draftInfo()).collect(Collectors.toList());
+                        EventBus.getDefault().postSticky(drafts.stream().filter(p -> Objects.equals(p.id(), id)).findFirst().get());
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+        });
+    }
+
+
+
+    public static void requestPrivateDraft(String id) {
+        checkCredentials(() -> {
+            AdminQuery query = AdminQuery.builder().id(USER_ID).build();
+
+            apolloClient.query(query).responseFetcher(ApolloResponseFetchers.NETWORK_FIRST).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<AdminQuery.Data> response) {
+                    if (response.data().User() != null) {
+                        List<DraftInfo> drafts = response.data().User().drafts()
+                                .stream().map(p -> p.fragments().draftInfo()).collect(Collectors.toList());
+                        EventBus.getDefault().postSticky(drafts.stream().filter(p -> Objects.equals(p.id(), id)).findFirst().get());
                     } else {
                         EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
                     }
@@ -243,7 +274,6 @@ public class DgApplication extends Application {
                 @Override
                 public void onResponse(@Nonnull Response<AllPublicationsQuery.Data> response) {
                     if (response.data().allPublications() != null) {
-                        EventBus.getDefault().post(response.data().allPublications());
                         List<PublicationInfo> publications = response.data().allPublications()
                                 .stream().map(p -> p.fragments().publicationInfo()).collect(Collectors.toList());
                         EventBus.getDefault().postSticky(publications.stream().filter(p -> Objects.equals(p.id(), id)).findFirst().get());
@@ -261,65 +291,39 @@ public class DgApplication extends Application {
     }
 
     public static void requestPrivateDrafts() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<Draft> drafts = new ArrayList<>();
+        checkCredentials(() -> {
+            AdminQuery query = AdminQuery.builder().id(USER_ID).build();
 
-                Draft info1 = new Draft();
-                info1.id = "1";
-                info1.title = "Lorem Ipsum 2";
-                info1.createdAt = "Jan 23, 2019";
-                info1.content = "# This is big header \n \n ## Smaller header \n\n * List Item 1 \n * List Item 2\n\n [I am a link](https://www.google.co.uk)";
-                info1.likes = 20;
+            apolloClient.query(query).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<AdminQuery.Data> response) {
+                    if (response.data().User() != null) {
+                        List<DraftInfo> drafts = response.data().User().drafts().stream().map(d -> d.fragments().draftInfo()).collect(Collectors.toList());
+                        EventBus.getDefault().postSticky(new DraftsEvent(drafts));
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+                }
 
-                Owner owner1 = new Owner();
-                owner1.name = "admin1";
-
-                owner1.picture = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
-                owner1.bio = "This is some bio";
-                info1.owner = owner1;
-
-                Draft info2 = new Draft();
-                info2.id = "2";
-                info2.title = "Lorem Ipsum 2";
-                info2.createdAt = "Jan 23, 2019";
-                info2.likes = 20;
-
-                Owner owner2 = new Owner();
-                owner2.name = "admin1";
-                owner2.picture = "https://s10.postimg.org/qvvi5ot7t/healthy-fruits-morning-kitchen.jpg";
-                owner2.bio = "This is some bio";
-                info2.content = "# This is big header \n \n ## Smaller header \n\n * List Item 1 \n * List Item 2\n\n [I am a link](https://www.google.co.uk)";
-                info2.owner = owner2;
-
-                drafts.add(info1);
-                drafts.add(info2);
-
-                DraftsEvent event = new DraftsEvent();
-                event.drafts = drafts;
-                EventBus.getDefault().postSticky(event);
-            }
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
         });
-        thread.start();
 
     }
 
     public static void requestPrivatePublications() {
         checkCredentials(() -> {
-            AllPublicationsQuery query = AllPublicationsQuery.builder().build();
+            AdminQuery query = AdminQuery.builder().id(USER_ID).build();
 
-            apolloClient.query(query).enqueue(new ApolloCall.Callback<AllPublicationsQuery.Data>() {
+            apolloClient.query(query).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
                 @Override
-                public void onResponse(@Nonnull Response<AllPublicationsQuery.Data> response) {
-                    if (response.data().allPublications() != null) {
-                        EventBus.getDefault().post(response.data().allPublications());
-                        List<PublicationInfo> publications = response.data().allPublications()
-                                .stream().map(p -> p.fragments().publicationInfo())
-                                .filter(p -> Objects.equals(p.owner().fragments().userInfo().id(), USER_ID))
-                                .collect(Collectors.toList());
-
-                        EventBus.getDefault().postSticky(new PublicationsEvent(publications));
+                public void onResponse(@Nonnull Response<AdminQuery.Data> response) {
+                    if (response.data().User() != null) {
+                        List<PublicationInfo> pubs = response.data().User().publications().stream().map(d -> d.fragments().publicationInfo()).collect(Collectors.toList());
+                        EventBus.getDefault().postSticky(new PublicationsEvent(pubs));
                     } else {
                         EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
                     }
@@ -352,6 +356,59 @@ public class DgApplication extends Application {
         }
 
     }
+
+    public static void duplicateDraft(DraftInfo draft) {
+        checkCredentials(() -> {
+            AdminQuery query = AdminQuery.builder().id(USER_ID).build();
+            CreateDraftMutation createDraft = CreateDraftMutation.builder()
+                    .content(draft.content())
+                    .ownerId(USER_ID)
+                    .title(draft.title())
+                    .type(DraftType.TUTORIAL)
+                    .build();
+            apolloClient.mutate(createDraft).refetchQueries(query).enqueue(new ApolloCall.Callback<CreateDraftMutation.Data>() {
+
+                @Override
+                public void onResponse(@Nonnull Response<CreateDraftMutation.Data> response) {
+                    if (response.data().createDraft() != null) {
+                        EventBus.getDefault().post(response.data().createDraft());
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+        });
+    }
+
+
+    public static void deletePublication(String id) {
+        checkCredentials(() -> {
+            AllPublicationsQuery query = AllPublicationsQuery.builder().build();
+            DeletePublicationMutation delete = DeletePublicationMutation.builder().id(id).build();
+            apolloClient.mutate(delete).refetchQueries(query).enqueue(new ApolloCall.Callback<DeletePublicationMutation.Data>() {
+
+                @Override
+                public void onResponse(@Nonnull Response<DeletePublicationMutation.Data> response) {
+                    if (response.data().deletePublication() != null) {
+                        EventBus.getDefault().post(response.data().deletePublication());
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+        });
+    }
+
 
     public static void deleteNotification(String id) {
         checkCredentials(() -> {

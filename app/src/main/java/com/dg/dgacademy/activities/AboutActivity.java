@@ -7,17 +7,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.dg.dgacademy.R;
-import com.dg.dgacademy.model.Draft;
-import com.dg.dgacademy.model.Profile;
-import com.squareup.picasso.Picasso;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.parceler.Parcels;
 
 import butterknife.BindView;

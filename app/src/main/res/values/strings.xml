@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">DgAcademy</string>
+    <string name="delete_publication">Publication has been deleted</string>
+    <string name="draft_duplicated">Draft has been duplicated</string>
 
     <!-- Login and registration -->
     <string name="username">Username</string>

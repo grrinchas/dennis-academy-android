@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
@@ -22,8 +22,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
 
+import api.DeletePublicationMutation;
 import api.fragment.PublicationInfo;
-import api.fragment.UserInfo;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -31,12 +31,19 @@ import ru.noties.markwon.Markwon;
 
 public class PrivatePublicationActivity extends AppCompatActivity {
 
-    @BindView(R.id.publication_image) ImageView pubImage;
-    @BindView(R.id.publication_title) TextView pubTitle;
-    @BindView(R.id.publication_content) TextView pubContent;
-    @BindView(R.id.publication_created_at_and_likes) TextView pubLikes;
+    @BindView(R.id.publication_image)
+    ImageView pubImage;
+    @BindView(R.id.publication_title)
+    TextView pubTitle;
+    @BindView(R.id.publication_content)
+    TextView pubContent;
+    @BindView(R.id.publication_created_at_and_likes)
+    TextView pubLikes;
 
-    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+
+    private String id;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -47,7 +54,8 @@ public class PrivatePublicationActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestPublication(getIntent().getExtras().getString("ID"));
+        id = getIntent().getExtras().getString("ID");
+        DgApplication.requestPublication(id);
 
     }
 
@@ -69,7 +77,13 @@ public class PrivatePublicationActivity extends AppCompatActivity {
         Markwon.setMarkdown(pubContent, pub.content());
         Picasso.get().load(pub.image()).fit().into(pubImage);
         String createdAt = new SimpleDateFormat("MMMM dd, yyyy").format(pub.createdAt());
-        pubLikes.setText(createdAt + "  |  LIKES ("+ String.valueOf(pub._publicationFanMeta().count() + ")"));
+        pubLikes.setText(createdAt + "  |  LIKES (" + String.valueOf(pub._publicationFanMeta().count() + ")"));
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDeletePublicationRequest(DeletePublicationMutation.DeletePublication d) {
+        Toast.makeText(this, getString(R.string.publication_deleted), Toast.LENGTH_LONG).show();
+        startActivity(new Intent(this, AllPrivatePublicationsActivity.class));
     }
 
     @OnClick(R.id.toolbar_menu)
@@ -79,7 +93,7 @@ public class PrivatePublicationActivity extends AppCompatActivity {
 
     @OnClick(R.id.publication_delete)
     public void onClickPublicationDelete() {
-        Log.d("Publication", "Click delete publication");
+        DgApplication.deletePublication(id);
     }
 
 }
