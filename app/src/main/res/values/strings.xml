@@ -6,6 +6,8 @@
     <string name="draft_public">Draft has been updated to Public</string>
     <string name="draft_private">Draft has been updated to Private</string>
     <string name="profile_update">Profile has been updated</string>
+    <string name="like">Like</string>
+    <string name="unlike">Unlike</string>
 
     <!-- Login and registration -->
     <string name="username">Username</string>

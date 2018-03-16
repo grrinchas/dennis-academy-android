@@ -22,6 +22,10 @@ import com.apollographql.apollo.api.cache.http.HttpCachePolicy;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
+import com.dg.dgacademy.activities.draft.DraftActivity;
+import com.dg.dgacademy.activities.draft.PrivateDraftActivity;
+import com.dg.dgacademy.activities.publication.PrivatePublicationActivity;
+import com.dg.dgacademy.activities.publication.PublicationActivity;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -103,7 +107,6 @@ public class NotificationsActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onNotificationsRequest(AdminQuery.User user) {
-        Log.d("should", String.valueOf(user.receivedNotifications().size()));
         adapter.publications.clear();
         adapter.drafts.clear();
         adapter.notifications.clear();
@@ -172,7 +175,10 @@ public class NotificationsActivity extends AppCompatActivity {
             UserInfo sender = note.sender().fragments().profileInfo().fragments().userInfo();
             Picasso.get().load(sender.picture()).fit().into(holder.picture);
             holder.username.setText(sender.username());
+
+            //TODO: Not implemented
             holder.picture.setOnClickListener(v -> Log.d("Note", "Click display sender profile"));
+
             holder.delete.setOnClickListener(v -> DgApplication.deleteNotification(note.id()));
 
             Optional<String> draftTitle = drafts.stream().filter(d -> Objects.equals(d.id(), note.message())).map(DraftInfo::title).findFirst();
@@ -184,7 +190,11 @@ public class NotificationsActivity extends AppCompatActivity {
                     holder.actionImage.setImageResource(R.drawable.ic_favorite_black_36dp);
                     holder.actionText.setText(R.string.your_draft);
                     if (draftTitle.isPresent()) {
-                        holder.actionRow.setOnClickListener(v -> Log.d("Note", "Click display article"));
+                        holder.actionRow.setOnClickListener(v -> {
+                            Intent intent = new Intent(NotificationsActivity.this, PrivateDraftActivity.class);
+                            intent.putExtra("ID", note.message());
+                            startActivity(intent);
+                        });
                         holder.article.setText(draftTitle.get());
                         holder.article.setTextColor(getResources().getColor(R.color.colorNotification));
                     } else {
@@ -196,7 +206,11 @@ public class NotificationsActivity extends AppCompatActivity {
                     holder.actionImage.setImageResource(R.drawable.ic_favorite_border_black_36dp);
                     holder.actionText.setText(R.string.your_draft);
                     if (draftTitle.isPresent()) {
-                        holder.actionRow.setOnClickListener(v -> Log.d("Note", "Click display article"));
+                        holder.actionRow.setOnClickListener(v -> {
+                            Intent intent = new Intent(NotificationsActivity.this, PrivateDraftActivity.class);
+                            intent.putExtra("ID", note.message());
+                            startActivity(intent);
+                        });
                         holder.article.setText(draftTitle.get());
                         holder.article.setTextColor(getResources().getColor(R.color.colorNotification));
                     } else {
@@ -208,7 +222,11 @@ public class NotificationsActivity extends AppCompatActivity {
                     holder.actionImage.setImageResource(R.drawable.ic_favorite_black_36dp);
                     holder.actionText.setText(R.string.your_publication);
                     if (pubTitle.isPresent()) {
-                        holder.actionRow.setOnClickListener(v -> Log.d("Note", "Click display article"));
+                        holder.actionRow.setOnClickListener(v -> {
+                            Intent intent = new Intent(NotificationsActivity.this, PrivatePublicationActivity.class);
+                            intent.putExtra("ID", note.message());
+                            startActivity(intent);
+                        });
                         holder.article.setText(pubTitle.get());
                         holder.article.setTextColor(getResources().getColor(R.color.colorNotification));
                     } else {
@@ -220,7 +238,11 @@ public class NotificationsActivity extends AppCompatActivity {
                     holder.actionImage.setImageResource(R.drawable.ic_favorite_border_black_36dp);
                     holder.actionText.setText(R.string.your_publication);
                     if (pubTitle.isPresent()) {
-                        holder.actionRow.setOnClickListener(v -> Log.d("Note", "Click display article"));
+                        holder.actionRow.setOnClickListener(v -> {
+                            Intent intent = new Intent(NotificationsActivity.this, PrivatePublicationActivity.class);
+                            intent.putExtra("ID", note.message());
+                            startActivity(intent);
+                        });
                         holder.article.setText(pubTitle.get());
                         holder.article.setTextColor(getResources().getColor(R.color.colorNotification));
                     } else {

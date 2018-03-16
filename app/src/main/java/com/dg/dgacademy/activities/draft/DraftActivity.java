@@ -21,8 +21,14 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
+import java.util.stream.Collectors;
 
+import api.AdminQuery;
 import api.CreateDraftMutation;
+import api.LikeDraftMutation;
+import api.LikePublicationMutation;
+import api.UnlikeDraftMutation;
+import api.UnlikePublicationMutation;
 import api.fragment.DraftInfo;
 import api.fragment.UserInfo;
 import butterknife.BindView;
@@ -39,10 +45,13 @@ public class DraftActivity extends AppCompatActivity {
     @BindView(R.id.draft_title) TextView draftTitle;
     @BindView(R.id.draft_content) TextView draftContent;
     @BindView(R.id.draft_created_at_and_likes) TextView draftLikes;
+    @BindView(R.id.draft_like) ImageView draftLike;
 
     @BindView(R.id.toolbar) Toolbar toolbar;
-    private DraftInfo draft;
 
+    private DraftInfo draft;
+    private String draftId;
+    private boolean like;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -53,8 +62,9 @@ public class DraftActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestPublicDraft(getIntent().getExtras().getString("ID"), ApolloResponseFetchers.CACHE_FIRST);
-
+        draftId = getIntent().getExtras().getString("ID");
+        DgApplication.requestPublicDraft(draftId, ApolloResponseFetchers.CACHE_FIRST);
+        DgApplication.requestAdmin(ApolloResponseFetchers.CACHE_FIRST);
     }
     @Override
     protected void onStart() {
@@ -94,14 +104,38 @@ public class DraftActivity extends AppCompatActivity {
         startActivity(new Intent(this, MenuActivity.class));
     }
 
-    @OnClick(R.id.draft_like)
-    public void onClickDraftLike() {
-        Log.d("Draft", "Click like draft");
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onAdminRequest(AdminQuery.User user) {
+        if (user.likedDrafts().stream().map(p -> p.fragments().draftInfo().id()).collect(Collectors.toList()).contains(draftId)) {
+            like = true;
+            draftLike.setImageResource(R.drawable.ic_favorite_black_36dp);
+        } else {
+            like = false;
+            draftLike.setImageResource(R.drawable.ic_favorite_border_black_36dp);
+        }
+
     }
 
-    @OnClick(R.id.draft_duplicate)
-    public void onClickDraftDuplicate() {
-        DgApplication.duplicateDraft(this.draft);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLikeDraft(LikeDraftMutation.AddToUserOnLikedDraft u) {
+        like = true;
+        draftLike.setImageResource(R.drawable.ic_favorite_black_36dp);
+        Toast.makeText(this, R.string.like, Toast.LENGTH_LONG).show();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUnLikeDraft(UnlikeDraftMutation.RemoveFromUserOnLikedDraft u) {
+        like = false;
+        draftLike.setImageResource(R.drawable.ic_favorite_border_black_36dp);
+        Toast.makeText(this, R.string.unlike, Toast.LENGTH_LONG).show();
+    }
+
+    @OnClick(R.id.draft_like)
+    public void onClickDraftLike() {
+        if (like)
+            DgApplication.unlikeDraft(draftId, draft.owner().fragments().userInfo().id());
+        else
+            DgApplication.likeDraft(draftId, draft.owner().fragments().userInfo().id());
     }
 
 }

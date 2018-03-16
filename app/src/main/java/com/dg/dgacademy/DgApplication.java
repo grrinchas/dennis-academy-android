@@ -59,15 +59,21 @@ import api.AllPublicDraftsQuery;
 import api.AllPublicationsQuery;
 import api.AuthenticateMutation;
 import api.CreateDraftMutation;
+import api.CreateNotificationMutation;
 import api.DeleteDraftMutation;
 import api.DeleteNotificationMutation;
 import api.DeletePublicationMutation;
+import api.LikeDraftMutation;
+import api.LikePublicationMutation;
+import api.UnlikeDraftMutation;
+import api.UnlikePublicationMutation;
 import api.UpdateDraftMutation;
 import api.UpdateUserMutation;
 import api.fragment.DraftInfo;
 import api.fragment.PublicationInfo;
 import api.type.CustomType;
 import api.type.DraftType;
+import api.type.NotificationType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -161,7 +167,9 @@ public class DgApplication extends Application {
                 public void onResponse(@Nonnull Response<AllPublicDraftsQuery.Data> response) {
                     if (response.data().allDrafts() != null) {
                         List<DraftInfo> drafts = response.data().allDrafts()
-                                .stream().map(p -> p.fragments().draftInfo()).collect(Collectors.toList());
+                                .stream().map(p -> p.fragments().draftInfo())
+                                .filter(p -> !Objects.equals(p.owner().fragments().userInfo().id(), USER_ID))
+                                .collect(Collectors.toList());
                         EventBus.getDefault().postSticky(new DraftsEvent(drafts));
                     } else {
                         EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
@@ -184,7 +192,13 @@ public class DgApplication extends Application {
                 @Override
                 public void onResponse(@Nonnull Response<AllPublicationsQuery.Data> response) {
                     if (response.data().allPublications() != null) {
-                        List<PublicationInfo> publications = response.data().allPublications().stream().map(p -> p.fragments().publicationInfo()).collect(Collectors.toList());
+                        List<PublicationInfo> publications = response.data()
+                                .allPublications()
+                                .stream()
+                                .map(p -> p.fragments().publicationInfo())
+                                .filter(p -> !Objects.equals(p.owner().fragments().userInfo().id(), USER_ID))
+                                .collect(Collectors.toList());
+
                         EventBus.getDefault().postSticky(new PublicationsEvent(publications));
                     } else {
                         EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
@@ -227,7 +241,6 @@ public class DgApplication extends Application {
     public static void requestPrivateDraft(String id, ResponseFetcher fetcher) {
         checkCredentials(() -> {
             AdminQuery query = AdminQuery.builder().id(USER_ID).build();
-            Log.d(fetcher.toString(), fetcher.toString());
 
             apolloClient.query(query).responseFetcher(fetcher).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
                 @Override
@@ -423,8 +436,224 @@ public class DgApplication extends Application {
             });
         });
     }
+    public static void unlikeDraft(String pubId, String receiverId) {
 
-      public static void updateDraft(UpdateDraftMutation update) {
+        checkCredentials(() -> {
+            UnlikeDraftMutation like = UnlikeDraftMutation.builder()
+                    .draftId(pubId)
+                    .userId(USER_ID)
+                    .build();
+
+            CreateNotificationMutation create = CreateNotificationMutation.builder()
+                    .message(pubId)
+                    .receiverId(receiverId)
+                    .senderId(USER_ID)
+                    .type(NotificationType.UNLIKED_DRAFT)
+                    .build();
+
+            AllPublicationsQuery pubsQuery = AllPublicationsQuery.builder().build();
+            AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
+
+            apolloClient.mutate(like).enqueue(new ApolloCall.Callback<UnlikeDraftMutation.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<UnlikeDraftMutation.Data> res) {
+                    if (res.data().removeFromUserOnLikedDraft() != null) {
+
+                        apolloClient.mutate(create).refetchQueries(pubsQuery, adminQuery).enqueue(new ApolloCall.Callback<CreateNotificationMutation.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull Response<CreateNotificationMutation.Data> response) {
+                                if(response.data().createNotification() != null)
+                                    EventBus.getDefault().post(res.data().removeFromUserOnLikedDraft());
+                                else
+                                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                            }
+
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
+                                EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                            }
+                        });
+
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+
+        });
+    }
+
+
+
+    public static void unlikePublication(String pubId, String receiverId) {
+
+        checkCredentials(() -> {
+            UnlikePublicationMutation like = UnlikePublicationMutation.builder()
+                    .publicationId(pubId)
+                    .userId(USER_ID)
+                    .build();
+
+            CreateNotificationMutation create = CreateNotificationMutation.builder()
+                    .message(pubId)
+                    .receiverId(receiverId)
+                    .senderId(USER_ID)
+                    .type(NotificationType.UNLIKED_PUBLICATION)
+                    .build();
+
+            AllPublicationsQuery pubsQuery = AllPublicationsQuery.builder().build();
+            AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
+
+            apolloClient.mutate(like).enqueue(new ApolloCall.Callback<UnlikePublicationMutation.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<UnlikePublicationMutation.Data> res) {
+                    if (res.data().removeFromUserOnLikedPublication() != null) {
+
+                        apolloClient.mutate(create).refetchQueries(pubsQuery, adminQuery).enqueue(new ApolloCall.Callback<CreateNotificationMutation.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull Response<CreateNotificationMutation.Data> response) {
+                                if(response.data().createNotification() != null)
+                                    EventBus.getDefault().post(res.data().removeFromUserOnLikedPublication());
+                                else
+                                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                            }
+
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
+                                EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                            }
+                        });
+
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+
+        });
+    }
+
+    public static void likeDraft(String pubId, String receiverId) {
+
+        checkCredentials(() -> {
+            LikeDraftMutation like = LikeDraftMutation.builder()
+                    .draftId(pubId)
+                    .userId(USER_ID)
+                    .build();
+
+            CreateNotificationMutation create = CreateNotificationMutation.builder()
+                    .message(pubId)
+                    .receiverId(receiverId)
+                    .senderId(USER_ID)
+                    .type(NotificationType.LIKED_DRAFT)
+                    .build();
+
+            AllPublicationsQuery pubsQuery = AllPublicationsQuery.builder().build();
+            AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
+
+            apolloClient.mutate(like).enqueue(new ApolloCall.Callback<LikeDraftMutation.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<LikeDraftMutation.Data> res) {
+                    if (res.data().addToUserOnLikedDraft() != null) {
+
+                        apolloClient.mutate(create).refetchQueries(pubsQuery, adminQuery).enqueue(new ApolloCall.Callback<CreateNotificationMutation.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull Response<CreateNotificationMutation.Data> response) {
+                                if(response.data().createNotification() != null)
+                                    EventBus.getDefault().post(res.data().addToUserOnLikedDraft());
+                                else
+                                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                            }
+
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
+                                EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                            }
+                        });
+
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+
+        });
+    }
+
+
+    public static void likePublication(String pubId, String receiverId) {
+
+        checkCredentials(() -> {
+            LikePublicationMutation like = LikePublicationMutation.builder()
+                    .publicationId(pubId)
+                    .userId(USER_ID)
+                    .build();
+
+            CreateNotificationMutation create = CreateNotificationMutation.builder()
+                    .message(pubId)
+                    .receiverId(receiverId)
+                    .senderId(USER_ID)
+                    .type(NotificationType.LIKED_PUBLICATION)
+                    .build();
+
+            AllPublicationsQuery pubsQuery = AllPublicationsQuery.builder().build();
+            AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
+
+            apolloClient.mutate(like).enqueue(new ApolloCall.Callback<LikePublicationMutation.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<LikePublicationMutation.Data> res) {
+                    if (res.data().addToUserOnLikedPublication() != null) {
+
+                        apolloClient.mutate(create).refetchQueries(pubsQuery, adminQuery).enqueue(new ApolloCall.Callback<CreateNotificationMutation.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull Response<CreateNotificationMutation.Data> response) {
+                                if(response.data().createNotification() != null)
+                                    EventBus.getDefault().post(res.data().addToUserOnLikedPublication());
+                                else
+                                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                            }
+
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
+                                EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                            }
+                        });
+
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+
+        });
+    }
+
+
+
+    public static void updateDraft(UpdateDraftMutation update) {
         checkCredentials(() -> {
             AllPublicDraftsQuery draftsQuery = AllPublicDraftsQuery.builder().build();
             AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
@@ -445,6 +674,7 @@ public class DgApplication extends Application {
             });
         });
     }
+
     public static void updateUser(String bio) {
         checkCredentials(() -> {
             AllPublicDraftsQuery draftsQuery = AllPublicDraftsQuery.builder().build();
@@ -585,7 +815,6 @@ public class DgApplication extends Application {
 
     private static void authorize(String token, Runnable runnable) {
 
-        Log.d("Auth0 token is", token);
         AuthenticateMutation authenticate = AuthenticateMutation.builder().token(token).build();
         apolloClient.mutate(authenticate).enqueue(new ApolloCall.Callback<AuthenticateMutation.Data>() {
             @Override
