@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
@@ -52,7 +53,7 @@ public class DraftActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestPublicDraft(getIntent().getExtras().getString("ID"));
+        DgApplication.requestPublicDraft(getIntent().getExtras().getString("ID"), ApolloResponseFetchers.CACHE_FIRST);
 
     }
     @Override
@@ -84,6 +85,7 @@ public class DraftActivity extends AppCompatActivity {
         Toast.makeText(this, getString(R.string.draft_duplicated), Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, PrivateDraftActivity.class);
         intent.putExtra("ID", d.fragments().draftInfo().id());
+        intent.putExtra("FETCH", "NETWORK");
         startActivity(intent);
     }
 

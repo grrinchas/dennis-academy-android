@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
@@ -50,7 +51,7 @@ public class AllDraftsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestPublicDrafts();
+        DgApplication.requestPublicDrafts(ApolloResponseFetchers.CACHE_FIRST);
         initRecyclerView();
     }
 

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.apollographql.apollo.api.cache.http.HttpCachePolicy;
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.squareup.picasso.Picasso;
@@ -71,7 +72,7 @@ public class NotificationsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestAdmin();
+        DgApplication.requestAdmin(ApolloResponseFetchers.CACHE_FIRST);
 
         initRecyclerView();
     }
@@ -97,7 +98,7 @@ public class NotificationsActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDeleteNotification(DeleteNotificationMutation.DeleteNotification note) {
         Toast.makeText(this, getString(R.string.deleted_notifications), Toast.LENGTH_LONG).show();
-        DgApplication.requestAdmin();
+        DgApplication.requestAdmin(ApolloResponseFetchers.NETWORK_ONLY);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)

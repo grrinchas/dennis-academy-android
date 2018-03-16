@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
@@ -50,7 +51,7 @@ public class PublicationActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestPublication(getIntent().getExtras().getString("ID"));
+        DgApplication.requestPublication(getIntent().getExtras().getString("ID"), ApolloResponseFetchers.CACHE_FIRST);
 
     }
     @Override

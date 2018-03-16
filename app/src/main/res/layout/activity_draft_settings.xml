@@ -92,47 +92,6 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp">
-
-
-        <LinearLayout
-            android:id="@+id/draft_edit_markdown"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginRight="20dp"
-                android:src="@drawable/ic_apps_black_36dp"
-                android:tint="@color/colorAccentSecond" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/edit_markdown"
-                android:textColor="@color/colorWhite"
-                android:textSize="18sp" />
-
-
-            <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="0"
-                android:src="@drawable/ic_keyboard_arrow_right_black_36dp"
-                android:tint="@color/colorWhiteAccentDark" />
-
-        </LinearLayout>
-
-    </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"

@@ -48,6 +48,5 @@
         <activity android:name=".activities.draft.DraftSettingsActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".activities.draft.EditDraftTitleActivity"/>
-        <activity android:name=".activities.draft.EditMarkdownActivity"/>
     </application>
 </manifest>

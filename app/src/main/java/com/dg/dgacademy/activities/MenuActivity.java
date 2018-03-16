@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 
 import com.apollographql.apollo.api.cache.http.HttpCachePolicy;
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.draft.AllDraftsActivity;
@@ -40,7 +41,7 @@ public class MenuActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestAdmin();
+        DgApplication.requestAdmin(ApolloResponseFetchers.CACHE_FIRST);
     }
 
     @Override

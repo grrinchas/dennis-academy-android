@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
@@ -50,7 +51,7 @@ public class AllPrivatePublicationsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbarTitle.setText(R.string.publications);
 
-        DgApplication.requestPrivatePublications();
+        DgApplication.requestPrivatePublications(ApolloResponseFetchers.CACHE_FIRST);
         initRecyclerView();
 
     }

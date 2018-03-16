@@ -8,6 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
 
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
+import com.apollographql.apollo.fetcher.ResponseFetcher;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
@@ -36,7 +38,6 @@ public class PrivateDraftActivity extends AppCompatActivity {
     @BindView(R.id.toolbar) Toolbar toolbar;
     private DraftInfo draft;
 
-    private String id;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -47,12 +48,12 @@ public class PrivateDraftActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        id = getIntent().getExtras().getString("ID");
-        DgApplication.requestPrivateDraft(id);
+        DgApplication.requestPrivateDraft(getIntent().getExtras().getString("ID"), getIntent().getExtras().get("FETCH") == null? ApolloResponseFetchers.CACHE_FIRST: ApolloResponseFetchers.NETWORK_ONLY);
 
     }
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onDraftRequest(DraftInfo draft) {
+        this.draft = draft;
         draftTitle.setText(draft.title());
         Markwon.setMarkdown(draftContent, draft.content());
         String createdAt = new SimpleDateFormat("MMMM dd, yyyy").format(draft.createdAt());
@@ -78,9 +79,7 @@ public class PrivateDraftActivity extends AppCompatActivity {
     @OnClick(R.id.draft_more)
     public void onClickDraftMore() {
         Intent intent = new Intent(getApplicationContext(), DraftSettingsActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("BUNDLE", Parcels.wrap(draft));
-        intent.putExtras(bundle);
+        intent.putExtra("ID", draft.id());
         startActivity(intent);
     }
 

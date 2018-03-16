@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
@@ -35,7 +36,8 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
 
     private DraftsAdapter adapter;
 
-    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -46,7 +48,10 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestPrivateDrafts();
+        if (getIntent().getExtras() != null)
+            DgApplication.requestPrivateDrafts(getIntent().getExtras().get("FETCH") == null ? ApolloResponseFetchers.CACHE_FIRST : ApolloResponseFetchers.NETWORK_ONLY);
+        else
+            DgApplication.requestPrivateDrafts(ApolloResponseFetchers.CACHE_FIRST);
         initRecyclerView();
     }
 
@@ -84,8 +89,10 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
 
     class DraftsHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.drafts_title) TextView title;
-        @BindView(R.id.draft) View draft;
+        @BindView(R.id.drafts_title)
+        TextView title;
+        @BindView(R.id.draft)
+        View draft;
 
         DraftsHolder(View view) {
             super(view);

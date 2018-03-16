@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.model.DraftsEvent;
@@ -35,8 +36,8 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
         ButterKnife.bind(this);
-        DgApplication.requestPublicDrafts();
-        DgApplication.requestPublicPublications();
+        DgApplication.requestPublicDrafts(ApolloResponseFetchers.CACHE_FIRST);
+        DgApplication.requestPublicPublications(ApolloResponseFetchers.CACHE_FIRST);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);

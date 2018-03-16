@@ -22,6 +22,7 @@ import com.apollographql.apollo.cache.normalized.sql.ApolloSqlHelper;
 import com.apollographql.apollo.cache.normalized.sql.SqlNormalizedCacheFactory;
 import com.apollographql.apollo.exception.ApolloException;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
+import com.apollographql.apollo.fetcher.ResponseFetcher;
 import com.auth0.android.Auth0;
 import com.auth0.android.authentication.AuthenticationAPIClient;
 import com.auth0.android.authentication.AuthenticationException;
@@ -51,6 +52,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -60,8 +62,10 @@ import api.AllPublicDraftsQuery;
 import api.AllPublicationsQuery;
 import api.AuthenticateMutation;
 import api.CreateDraftMutation;
+import api.DeleteDraftMutation;
 import api.DeleteNotificationMutation;
 import api.DeletePublicationMutation;
+import api.UpdateDraftMutation;
 import api.fragment.DraftInfo;
 import api.fragment.PublicationInfo;
 import api.type.CustomType;
@@ -168,11 +172,11 @@ public class DgApplication extends Application {
         thread.start();
     }
 
-    public static void requestPublicDrafts() {
+    public static void requestPublicDrafts(ResponseFetcher fetcher) {
         checkCredentials(() -> {
             AllPublicDraftsQuery query = AllPublicDraftsQuery.builder().build();
 
-            apolloClient.query(query).enqueue(new ApolloCall.Callback<AllPublicDraftsQuery.Data>() {
+            apolloClient.query(query).responseFetcher(fetcher).enqueue(new ApolloCall.Callback<AllPublicDraftsQuery.Data>() {
                 @Override
                 public void onResponse(@Nonnull Response<AllPublicDraftsQuery.Data> response) {
                     if (response.data().allDrafts() != null) {
@@ -192,11 +196,11 @@ public class DgApplication extends Application {
         });
     }
 
-    public static void requestPublicPublications() {
+    public static void requestPublicPublications(ResponseFetcher fetcher) {
         checkCredentials(() -> {
             AllPublicationsQuery query = AllPublicationsQuery.builder().build();
 
-            apolloClient.query(query).enqueue(new ApolloCall.Callback<AllPublicationsQuery.Data>() {
+            apolloClient.query(query).responseFetcher(fetcher).enqueue(new ApolloCall.Callback<AllPublicationsQuery.Data>() {
                 @Override
                 public void onResponse(@Nonnull Response<AllPublicationsQuery.Data> response) {
                     if (response.data().allPublications() != null) {
@@ -215,11 +219,11 @@ public class DgApplication extends Application {
         });
     }
 
-    public static void requestPublicDraft(String id) {
+    public static void requestPublicDraft(String id, ResponseFetcher fetcher) {
         checkCredentials(() -> {
             AllPublicDraftsQuery query = AllPublicDraftsQuery.builder().build();
 
-            apolloClient.query(query).enqueue(new ApolloCall.Callback<AllPublicDraftsQuery.Data>() {
+            apolloClient.query(query).responseFetcher(fetcher).enqueue(new ApolloCall.Callback<AllPublicDraftsQuery.Data>() {
                 @Override
                 public void onResponse(@Nonnull Response<AllPublicDraftsQuery.Data> response) {
                     if (response.data().allDrafts() != null) {
@@ -240,18 +244,22 @@ public class DgApplication extends Application {
     }
 
 
-
-    public static void requestPrivateDraft(String id) {
+    public static void requestPrivateDraft(String id, ResponseFetcher fetcher) {
         checkCredentials(() -> {
             AdminQuery query = AdminQuery.builder().id(USER_ID).build();
+            Log.d(fetcher.toString(), fetcher.toString());
 
-            apolloClient.query(query).responseFetcher(ApolloResponseFetchers.NETWORK_FIRST).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
+            apolloClient.query(query).responseFetcher(fetcher).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
                 @Override
                 public void onResponse(@Nonnull Response<AdminQuery.Data> response) {
                     if (response.data().User() != null) {
-                        List<DraftInfo> drafts = response.data().User().drafts()
-                                .stream().map(p -> p.fragments().draftInfo()).collect(Collectors.toList());
-                        EventBus.getDefault().postSticky(drafts.stream().filter(p -> Objects.equals(p.id(), id)).findFirst().get());
+                        Optional<DraftInfo> draft = response.data().User().drafts()
+                                .stream().map(p -> p.fragments().draftInfo())
+                                .filter(p -> Objects.equals(p.id(), id)).findFirst();
+                        if (draft.isPresent())
+                            EventBus.getDefault().postSticky(draft.get());
+                        else
+                            EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
                     } else {
                         EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
                     }
@@ -266,17 +274,21 @@ public class DgApplication extends Application {
     }
 
 
-    public static void requestPublication(String id) {
+    public static void requestPublication(String id, ResponseFetcher fetcher) {
         checkCredentials(() -> {
             AllPublicationsQuery query = AllPublicationsQuery.builder().build();
 
-            apolloClient.query(query).enqueue(new ApolloCall.Callback<AllPublicationsQuery.Data>() {
+            apolloClient.query(query).responseFetcher(fetcher).enqueue(new ApolloCall.Callback<AllPublicationsQuery.Data>() {
                 @Override
                 public void onResponse(@Nonnull Response<AllPublicationsQuery.Data> response) {
                     if (response.data().allPublications() != null) {
-                        List<PublicationInfo> publications = response.data().allPublications()
-                                .stream().map(p -> p.fragments().publicationInfo()).collect(Collectors.toList());
-                        EventBus.getDefault().postSticky(publications.stream().filter(p -> Objects.equals(p.id(), id)).findFirst().get());
+                        Optional<PublicationInfo> publication = response.data().allPublications()
+                                .stream().map(p -> p.fragments().publicationInfo())
+                                .filter(p -> Objects.equals(p.id(), id)).findFirst();
+                        if (publication.isPresent())
+                            EventBus.getDefault().postSticky(publication.get());
+                        else
+                            EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
                     } else {
                         EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
                     }
@@ -290,11 +302,11 @@ public class DgApplication extends Application {
         });
     }
 
-    public static void requestPrivateDrafts() {
+    public static void requestPrivateDrafts(ResponseFetcher fetcher) {
         checkCredentials(() -> {
             AdminQuery query = AdminQuery.builder().id(USER_ID).build();
 
-            apolloClient.query(query).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
+            apolloClient.query(query).responseFetcher(fetcher).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
                 @Override
                 public void onResponse(@Nonnull Response<AdminQuery.Data> response) {
                     if (response.data().User() != null) {
@@ -314,11 +326,11 @@ public class DgApplication extends Application {
 
     }
 
-    public static void requestPrivatePublications() {
+    public static void requestPrivatePublications(ResponseFetcher fetcher) {
         checkCredentials(() -> {
             AdminQuery query = AdminQuery.builder().id(USER_ID).build();
 
-            apolloClient.query(query).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
+            apolloClient.query(query).responseFetcher(fetcher).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
                 @Override
                 public void onResponse(@Nonnull Response<AdminQuery.Data> response) {
                     if (response.data().User() != null) {
@@ -409,6 +421,51 @@ public class DgApplication extends Application {
         });
     }
 
+    public static void deleteDraft(String id) {
+        checkCredentials(() -> {
+            AllPublicDraftsQuery draftsQuery = AllPublicDraftsQuery.builder().build();
+            AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
+            DeleteDraftMutation delete = DeleteDraftMutation.builder().id(id).build();
+            apolloClient.mutate(delete).refetchQueries(adminQuery, draftsQuery).enqueue(new ApolloCall.Callback<DeleteDraftMutation.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<DeleteDraftMutation.Data> response) {
+                    if (response.data().deleteDraft() != null) {
+                        EventBus.getDefault().post(response.data().deleteDraft());
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+        });
+    }
+
+    public static void updateDraft(UpdateDraftMutation update) {
+        checkCredentials(() -> {
+            AllPublicDraftsQuery draftsQuery = AllPublicDraftsQuery.builder().build();
+            AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
+            apolloClient.mutate(update).refetchQueries(adminQuery, draftsQuery).enqueue(new ApolloCall.Callback<UpdateDraftMutation.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<UpdateDraftMutation.Data> response) {
+                    if (response.data().updateDraft() != null) {
+                        EventBus.getDefault().post(response.data().updateDraft());
+                    } else {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    }
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                }
+            });
+        });
+    }
+
 
     public static void deleteNotification(String id) {
         checkCredentials(() -> {
@@ -434,10 +491,10 @@ public class DgApplication extends Application {
     }
 
 
-    public static void requestAdmin() {
+    public static void requestAdmin(ResponseFetcher fetcher) {
         checkCredentials(() -> {
             AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
-            apolloClient.query(adminQuery).httpCachePolicy(HttpCachePolicy.NETWORK_ONLY).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
+            apolloClient.query(adminQuery).responseFetcher(fetcher).enqueue(new ApolloCall.Callback<AdminQuery.Data>() {
                 @Override
                 public void onResponse(@Nonnull Response<AdminQuery.Data> response) {
                     if (response.data().User() != null) {

@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
@@ -55,7 +56,7 @@ public class PrivatePublicationActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         id = getIntent().getExtras().getString("ID");
-        DgApplication.requestPublication(id);
+        DgApplication.requestPublication(id, ApolloResponseFetchers.CACHE_FIRST);
 
     }
 
