@@ -137,11 +137,6 @@ public class DraftSettingsActivity extends AppCompatActivity {
     }
 
 
-    @OnClick(R.id.update_publication)
-    public void onClickUpdatePublication() {
-        Log.d("Draft", "Click update publication");
-    }
-
     @OnClick(R.id.draft_duplicate)
     public void onClickDraftDuplicate() {
         DgApplication.duplicateDraft(this.draft);
@@ -168,17 +163,4 @@ public class DraftSettingsActivity extends AppCompatActivity {
         DgApplication.updateDraft(updateDraft);
     }
 
-    @OnClick(R.id.draft_edit_content)
-    public void onClickEditContent() {
-        try {
-            Intent intent = new Intent(Intent.ACTION_EDIT);
-            intent.setDataAndType(Uri.parse(draft.content()), "*/*");
-            Intent chooser = Intent.createChooser(intent, "Choose editor");
-            startActivity(chooser);
-
-        } catch (ActivityNotFoundException e) {
-            Toast toast = Toast.makeText(this, "No editor on this device", Toast.LENGTH_SHORT);
-            toast.show();
-        }
-    }
 }
