@@ -3,6 +3,9 @@ package com.dg.dgacademy;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -41,7 +44,12 @@ import com.dg.dgacademy.model.PublicationsEvent;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -60,6 +68,7 @@ import api.AllPublicationsQuery;
 import api.AuthenticateMutation;
 import api.CreateDraftMutation;
 import api.CreateNotificationMutation;
+import api.CreatePublicationMutation;
 import api.DeleteDraftMutation;
 import api.DeleteNotificationMutation;
 import api.DeletePublicationMutation;
@@ -74,8 +83,12 @@ import api.fragment.PublicationInfo;
 import api.type.CustomType;
 import api.type.DraftType;
 import api.type.NotificationType;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 
 
 public class DgApplication extends Application {
@@ -436,6 +449,7 @@ public class DgApplication extends Application {
             });
         });
     }
+
     public static void unlikeDraft(String pubId, String receiverId) {
 
         checkCredentials(() -> {
@@ -462,7 +476,7 @@ public class DgApplication extends Application {
                         apolloClient.mutate(create).refetchQueries(pubsQuery, adminQuery).enqueue(new ApolloCall.Callback<CreateNotificationMutation.Data>() {
                             @Override
                             public void onResponse(@Nonnull Response<CreateNotificationMutation.Data> response) {
-                                if(response.data().createNotification() != null)
+                                if (response.data().createNotification() != null)
                                     EventBus.getDefault().post(res.data().removeFromUserOnLikedDraft());
                                 else
                                     EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
@@ -488,7 +502,6 @@ public class DgApplication extends Application {
 
         });
     }
-
 
 
     public static void unlikePublication(String pubId, String receiverId) {
@@ -517,7 +530,7 @@ public class DgApplication extends Application {
                         apolloClient.mutate(create).refetchQueries(pubsQuery, adminQuery).enqueue(new ApolloCall.Callback<CreateNotificationMutation.Data>() {
                             @Override
                             public void onResponse(@Nonnull Response<CreateNotificationMutation.Data> response) {
-                                if(response.data().createNotification() != null)
+                                if (response.data().createNotification() != null)
                                     EventBus.getDefault().post(res.data().removeFromUserOnLikedPublication());
                                 else
                                     EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
@@ -570,7 +583,7 @@ public class DgApplication extends Application {
                         apolloClient.mutate(create).refetchQueries(pubsQuery, adminQuery).enqueue(new ApolloCall.Callback<CreateNotificationMutation.Data>() {
                             @Override
                             public void onResponse(@Nonnull Response<CreateNotificationMutation.Data> response) {
-                                if(response.data().createNotification() != null)
+                                if (response.data().createNotification() != null)
                                     EventBus.getDefault().post(res.data().addToUserOnLikedDraft());
                                 else
                                     EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
@@ -595,6 +608,72 @@ public class DgApplication extends Application {
             });
 
         });
+    }
+
+    public static void createNewPublication(Uri uri, DraftInfo draft) {
+        new Thread(() -> {
+            if (uri == null) {
+                EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                return;
+            }
+            checkCredentials(() -> {
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                    byte[] byteArray = stream.toByteArray();
+
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    RequestBody requestBody = new MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart("data", "image.jpeg", RequestBody.create(MediaType.parse("image/jpeg"), byteArray))
+                            .addFormDataPart("name", "image.jpeg")
+                            .build();
+
+                    Request request = new Request.Builder()
+                            .url("https://api.graph.cool/file/v1/cjcnkimc02rhy0177ejct2ika")
+                            .header("Accept", "application/json")
+                            .header("Content-Type", "multipart/form-data")
+                            .post(requestBody).build();
+                    okhttp3.Response response = okHttpClient.newCall(request).execute();
+
+                    if (!response.isSuccessful()) {
+                        EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                    } else {
+                        String url = new JSONObject(response.body().string()).getString("url");
+
+                        CreatePublicationMutation create = CreatePublicationMutation.builder()
+                                .content(draft.content())
+                                .image(url)
+                                .ownerId(USER_ID)
+                                .title(draft.title()).build();
+
+                        AllPublicationsQuery draftsQuery = AllPublicationsQuery.builder().build();
+                        AdminQuery adminQuery = AdminQuery.builder().id(USER_ID).build();
+                        apolloClient.mutate(create).refetchQueries(draftsQuery, adminQuery).enqueue(new ApolloCall.Callback<CreatePublicationMutation.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull Response<CreatePublicationMutation.Data> response) {
+                                if (response.data().createPublication() != null) {
+                                    EventBus.getDefault().post(response.data().createPublication());
+                                } else {
+                                    EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
+                                EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
+                            }
+                        });
+                    }
+
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+
+            });
+
+        }).start();
     }
 
 
@@ -624,7 +703,7 @@ public class DgApplication extends Application {
                         apolloClient.mutate(create).refetchQueries(pubsQuery, adminQuery).enqueue(new ApolloCall.Callback<CreateNotificationMutation.Data>() {
                             @Override
                             public void onResponse(@Nonnull Response<CreateNotificationMutation.Data> response) {
-                                if(response.data().createNotification() != null)
+                                if (response.data().createNotification() != null)
                                     EventBus.getDefault().post(res.data().addToUserOnLikedPublication());
                                 else
                                     EventBus.getDefault().post(new GlobalNetworkException(NETWORK_ERROR));
@@ -650,7 +729,6 @@ public class DgApplication extends Application {
 
         });
     }
-
 
 
     public static void updateDraft(UpdateDraftMutation update) {

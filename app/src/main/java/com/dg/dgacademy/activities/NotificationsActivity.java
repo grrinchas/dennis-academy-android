@@ -76,7 +76,7 @@ public class NotificationsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        DgApplication.requestAdmin(ApolloResponseFetchers.CACHE_FIRST);
+        DgApplication.requestAdmin(ApolloResponseFetchers.NETWORK_FIRST);
 
         initRecyclerView();
     }

@@ -2,11 +2,10 @@ package com.dg.dgacademy.activities.draft;
 
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,27 +17,22 @@ import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.dg.dgacademy.DgApplication;
 import com.dg.dgacademy.R;
 import com.dg.dgacademy.activities.MenuActivity;
-import com.squareup.picasso.Picasso;
+import com.dg.dgacademy.activities.publication.AllPrivatePublicationsActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.parceler.Parcels;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 import api.CreateDraftMutation;
+import api.CreatePublicationMutation;
 import api.DeleteDraftMutation;
 import api.UpdateDraftMutation;
 import api.fragment.DraftInfo;
-import api.fragment.UserInfo;
 import api.type.Visibility;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
-import ru.noties.markwon.Markwon;
 
 public class DraftSettingsActivity extends AppCompatActivity {
 
@@ -102,19 +96,10 @@ public class DraftSettingsActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
-            Uri photoUri = data.getData();
-            if (photoUri != null)
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
-                    Log.d("Success", bitmap.toString());
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            DgApplication.createNewPublication(data.getData(), draft);
         } else if (resultCode == Activity.RESULT_CANCELED) {
             Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
         }
-
     }
 
 
@@ -124,6 +109,13 @@ public class DraftSettingsActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.draft_public, Toast.LENGTH_LONG).show();
         else
             Toast.makeText(this, R.string.draft_private, Toast.LENGTH_LONG).show();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCreatePublication(CreatePublicationMutation.CreatePublication p) {
+        Toast.makeText(this, getString(R.string.create_publication), Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this, AllPrivatePublicationsActivity.class);
+        startActivity(intent);
     }
 
 
@@ -174,5 +166,19 @@ public class DraftSettingsActivity extends AppCompatActivity {
                 .visibility(visibility)
                 .build();
         DgApplication.updateDraft(updateDraft);
+    }
+
+    @OnClick(R.id.draft_edit_content)
+    public void onClickEditContent() {
+        try {
+            Intent intent = new Intent(Intent.ACTION_EDIT);
+            intent.setDataAndType(Uri.parse(draft.content()), "*/*");
+            Intent chooser = Intent.createChooser(intent, "Choose editor");
+            startActivity(chooser);
+
+        } catch (ActivityNotFoundException e) {
+            Toast toast = Toast.makeText(this, "No editor on this device", Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 }
