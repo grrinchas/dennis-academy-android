@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
@@ -34,6 +35,7 @@ public class PrivateDraftActivity extends AppCompatActivity {
     @BindView(R.id.draft_created_at_and_likes) TextView draftLikes;
     @BindView(R.id.draft_title) TextView draftTitle;
     @BindView(R.id.draft_content) TextView draftContent;
+    @BindView(R.id.progress_bar) ProgressBar progressBar;
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     private DraftInfo draft;
@@ -58,6 +60,7 @@ public class PrivateDraftActivity extends AppCompatActivity {
         Markwon.setMarkdown(draftContent, draft.content());
         String createdAt = new SimpleDateFormat("MMMM dd, yyyy").format(draft.createdAt());
         draftLikes.setText(createdAt + "  |  LIKES (" + String.valueOf(draft._draftFanMeta().count() + ")"));
+        progressBar.setVisibility(ProgressBar.GONE);
     }
 
     @Override

@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,9 +26,7 @@ import java.util.stream.Collectors;
 import api.AdminQuery;
 import api.CreateDraftMutation;
 import api.LikeDraftMutation;
-import api.LikePublicationMutation;
 import api.UnlikeDraftMutation;
-import api.UnlikePublicationMutation;
 import api.fragment.DraftInfo;
 import api.fragment.UserInfo;
 import butterknife.BindView;
@@ -48,6 +46,8 @@ public class DraftActivity extends AppCompatActivity {
     @BindView(R.id.draft_like) ImageView draftLike;
 
     @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     private DraftInfo draft;
     private String draftId;
@@ -80,6 +80,7 @@ public class DraftActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onDraftRequest(DraftInfo draft) {
+        this.progressBar.setVisibility(ProgressBar.GONE);
         this.draft = draft;
         UserInfo owner = draft.owner().fragments().userInfo();
         ownerName.setText(owner.username());
@@ -138,4 +139,9 @@ public class DraftActivity extends AppCompatActivity {
             DgApplication.likeDraft(draftId, draft.owner().fragments().userInfo().id());
     }
 
+
+    @OnClick(R.id.draft_duplicate)
+    public void onClickDraftDuplicate() {
+        DgApplication.duplicateDraft(this.draft);
+    }
 }

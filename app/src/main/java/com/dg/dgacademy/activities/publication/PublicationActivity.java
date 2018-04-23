@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +57,8 @@ public class PublicationActivity extends AppCompatActivity {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
+    @BindView(R.id.progress_bar) ProgressBar progressBar;
+
     private String pubId;
     private String ownerId;
     private boolean like;
@@ -95,6 +98,7 @@ public class PublicationActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onPublicationRequest(PublicationInfo pub) {
+        progressBar.setVisibility(ProgressBar.GONE);
         UserInfo user = pub.owner().fragments().userInfo();
         ownerName.setText(user.username());
         ownerBio.setText(user.bio());
@@ -105,6 +109,7 @@ public class PublicationActivity extends AppCompatActivity {
         String createdAt = new SimpleDateFormat("MMMM dd, yyyy").format(pub.createdAt());
         pubLikes.setText(createdAt + "  |  LIKES (" + String.valueOf(pub._publicationFanMeta().count() + ")"));
         ownerId = user.id();
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)

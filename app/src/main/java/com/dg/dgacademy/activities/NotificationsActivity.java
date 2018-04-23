@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +67,8 @@ public class NotificationsActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -107,6 +110,7 @@ public class NotificationsActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onNotificationsRequest(AdminQuery.User user) {
+        progressBar.setVisibility(ProgressBar.GONE);
         adapter.publications.clear();
         adapter.drafts.clear();
         adapter.notifications.clear();

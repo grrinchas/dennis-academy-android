@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
@@ -41,6 +42,8 @@ public class AllDraftsActivity extends AppCompatActivity {
 
     private DraftsAdapter adapter;
     @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -75,6 +78,7 @@ public class AllDraftsActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onDraftsRequest(DraftsEvent event) {
+        progressBar.setVisibility(ProgressBar.GONE);
         adapter.drafts = event.drafts;
         adapter.notifyDataSetChanged();
     }

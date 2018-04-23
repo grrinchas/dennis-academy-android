@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +44,8 @@ public class PrivatePublicationActivity extends AppCompatActivity {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     private String id;
 
@@ -79,6 +82,7 @@ public class PrivatePublicationActivity extends AppCompatActivity {
         Picasso.get().load(pub.image()).fit().into(pubImage);
         String createdAt = new SimpleDateFormat("MMMM dd, yyyy").format(pub.createdAt());
         pubLikes.setText(createdAt + "  |  LIKES (" + String.valueOf(pub._publicationFanMeta().count() + ")"));
+        progressBar.setVisibility(ProgressBar.GONE);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

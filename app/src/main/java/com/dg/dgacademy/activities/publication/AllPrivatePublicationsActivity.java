@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
@@ -40,6 +41,7 @@ public class AllPrivatePublicationsActivity extends AppCompatActivity {
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.toolbar_title) TextView toolbarTitle;
+    @BindView(R.id.progress_bar) ProgressBar progressBar;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -78,6 +80,7 @@ public class AllPrivatePublicationsActivity extends AppCompatActivity {
     public void onPublicationsRequest(PublicationsEvent event) {
         adapter.publications = event.publications;
         adapter.notifyDataSetChanged();
+        progressBar.setVisibility(ProgressBar.GONE);
     }
 
     private void initRecyclerView() {

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
@@ -33,6 +34,8 @@ public class DashboardActivity extends AppCompatActivity {
     @BindView(R.id.total_drafts) TextView totalDrafts;
 
     @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     @Override
     public void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -65,6 +68,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onAdminRequest(AdminQuery.User user) {
+        progressBar.setVisibility(ProgressBar.GONE);
         totalDrafts.setText(String.valueOf(user.drafts().size()));
         totalPublications.setText(String.valueOf(user.publications().size()));
         int yourLikes = user.likedDrafts().size() + user.likedPublications().size();

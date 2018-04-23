@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
@@ -35,6 +36,8 @@ import butterknife.OnClick;
 public class AllPrivateDraftsActivity extends AppCompatActivity {
 
     private DraftsAdapter adapter;
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -77,6 +80,7 @@ public class AllPrivateDraftsActivity extends AppCompatActivity {
     public void onDraftsRequest(DraftsEvent event) {
         adapter.drafts = event.drafts;
         adapter.notifyDataSetChanged();
+        progressBar.setVisibility(ProgressBar.GONE);
     }
 
     private void initRecyclerView() {
